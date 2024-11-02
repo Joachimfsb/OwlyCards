@@ -13,21 +13,6 @@
         android:theme="@style/Theme.OwlyCards"
         tools:targetApi="31">
         <activity
-            android:name=".FlashcardPractice"
-            android:exported="false"
-            android:label="@string/title_activity_flashcard_practice"
-            android:theme="@style/Theme.OwlyCards" />
-        <activity
-            android:name=".MatchMaking"
-            android:exported="false"
-            android:label="@string/title_activity_match_making"
-            android:theme="@style/Theme.OwlyCards" />
-        <activity
-            android:name=".Quiz"
-            android:exported="false"
-            android:label="@string/title_activity_quiz"
-            android:theme="@style/Theme.OwlyCards" />
-        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
