@@ -55,25 +55,20 @@ fun OwlyApp() {
         composable("startMenu") {
             StartMenuView(navController)
         }
-        /*// Recipes
-        navigation(
-            startDestination = "list",
-            route = "recipes"
-        ) {
-            // Recipe list
-            composable("list") {
-                val viewModel = it.sharedViewModel<SharedViewModel>(navController)
+        composable("menuSelection") {
+            MenuSelectionView(navController)
+        }
+        composable("cards_sets") {
+            FlashMenuView(navController)
+        }
+        composable("set-creation"){
+            SetCreationnView(navController)
+        }
+        composable("quiz") {
 
-                RecipeListView(viewModel, navController)
-            }
-            // Single recipe
-            composable("recipe/{id}") {
-                // Get ID from route
-                val id = it.arguments?.getString("id")?.toInt() ?: 0
-                val viewModel = it.sharedViewModel<SharedViewModel>(navController)
+        }
+        composable("matchmaking") {
 
-                RecipeView(id, viewModel)
-            }
-        }*/
+        }
     }
 }
