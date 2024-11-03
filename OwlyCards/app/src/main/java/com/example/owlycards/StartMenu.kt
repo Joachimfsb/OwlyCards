@@ -41,7 +41,7 @@ fun StartMenuViewPage(navController: NavController, modifier: Modifier = Modifie
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(100.dp)) //moved header text downwards
+            Spacer(modifier = Modifier.height(100.dp))
             Text(
                 text = "    The Owly\nFlashcard App", //header text
                 fontSize = 25.sp, //text size
@@ -60,7 +60,7 @@ fun StartMenuViewPage(navController: NavController, modifier: Modifier = Modifie
             Spacer(modifier = Modifier.height(16.dp)) //decides how much space unerneeth image
 
             Button(onClick = { //if delete button is clicked
-
+                navController.navigate("menuSelection")
             }) {
                 Text(
                     text = "Start"
