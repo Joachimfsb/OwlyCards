@@ -51,24 +51,25 @@ fun OwlyApp() {
     val navController = rememberNavController() // Nav controller
 
     // Define routes
-    NavHost(navController = navController, startDestination = "startMenu") {
-        composable("startMenu") {
+    NavHost(navController = navController, startDestination = "startMenu") { //program starts at
+                                                                             //startMenu screen
+        composable("startMenu") { //start menu screen
             StartMenuView(navController)
         }
-        composable("menuSelection") {
+        composable("menuSelection") { //menu selection screen
             MenuSelectionView(navController)
         }
-        composable("cards_sets") {
+        composable("cards_sets") { //card sets screen. create and delete card sets
             FlashMenuView(navController)
         }
-        composable("set-creation"){
+        composable("set-creation"){ //create a new flashcard set. add elements to new set
             SetCreationnView(navController)
         }
-        composable("quiz") {
-
+        composable("quiz") { //create quizes based on card sets
+            //TODO: lag fil og spill
         }
-        composable("matchmaking") {
-
+        composable("matchmaking") { //match making games using flashcard sets
+            //TODO: lag fil og spill
         }
     }
 }

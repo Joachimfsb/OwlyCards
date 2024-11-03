@@ -41,7 +41,7 @@ fun StartMenuViewPage(navController: NavController, modifier: Modifier = Modifie
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(100.dp)) //moved header text downwards
+            Spacer(modifier = Modifier.height(100.dp))
             Text(
                 text = "    The Owly\nFlashcard App", //header text
                 fontSize = 25.sp, //text size

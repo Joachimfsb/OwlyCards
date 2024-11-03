@@ -50,63 +50,63 @@ fun MenuSelectionViewPage(navController: NavController, modifier: Modifier = Mod
                 color = Color.White,
                 fontSize = 30.sp
             )
-            Spacer(modifier = Modifier.height(100.dp)) //moved header text downwards
-            Row( //item and checkbox on the same row
+            Spacer(modifier = Modifier.height(100.dp))
+            Row( //option to go into the flashcard set menu
                 verticalAlignment = Alignment.CenterVertically, //centers row
                 modifier = Modifier
                     .fillMaxWidth() //row takes the full width
                     .padding(8.dp).clickable { //centers
                         navController.navigate("cards_sets")
-                    }, //places the checkboxes all the way on the right
+                    },
             ) {
-                Text( //text of items
-                    text = "Flashcard Sets", //item text
+                Text(
+                    text = "Flashcard Sets",
                     modifier = Modifier.weight(1f), //spaces out text
                     color = Color.White
                 )
                 Image(
-                    painter = painterResource(id = R.drawable.cards), //image of ramsey
-                    contentDescription = "flash-cards", //description of picture
+                    painter = painterResource(id = R.drawable.cards), //image of flashcards
+                    contentDescription = "flash-cards",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.size(100.dp)
                 )
             }
-            Row( //item and checkbox on the same row
+            Row( //option to go into the flashcard set menu
                 verticalAlignment = Alignment.CenterVertically, //centers row
                 modifier = Modifier
                     .fillMaxWidth() //row takes the full width
                     .padding(8.dp).clickable { //centers
-
-                    }, //places the checkboxes all the way on the right
+                        //navController.navigate("quiz") crashes because leads to nowhere yet
+                    },
             ) {
-                Text( //text of items
-                    text = "Quizes", //item text
-                    modifier = Modifier.weight(1f), //spaces out text
+                Text(
+                    text = "Quizes",
+                    modifier = Modifier.weight(1f),
                     color = Color.White
                 )
                 Image(
-                    painter = painterResource(id = R.drawable.quiz), //image of ramsey
-                    contentDescription = "quiz", //description of picture
+                    painter = painterResource(id = R.drawable.quiz), //image of quiz
+                    contentDescription = "quiz",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.size(100.dp)
                 )
             }
-            Row( //item and checkbox on the same row
+            Row( //option to go into the flashcard set menu
                 verticalAlignment = Alignment.CenterVertically, //centers row
                 modifier = Modifier
                     .fillMaxWidth() //row takes the full width
                     .padding(8.dp).clickable { //centers
-
+                        //navController.navigate("matchmaking") crashes because leads to nowhere yet
                     }, //places the checkboxes all the way on the right
             ) {
-                Text( //text of items
-                    text = "Match Making", //item text
+                Text(
+                    text = "Match Making",
                     modifier = Modifier.weight(1f), //spaces out text
                     color = Color.White
                 )
                 Image(
-                    painter = painterResource(id = R.drawable.matchmaking), //image of ramsey
-                    contentDescription = "matchmaking", //description of picture
+                    painter = painterResource(id = R.drawable.matchmaking), //image of matchmaking
+                    contentDescription = "matchmaking",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.size(100.dp)
                 )
