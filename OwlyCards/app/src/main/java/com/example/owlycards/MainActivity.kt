@@ -65,6 +65,10 @@ fun OwlyApp() {
         composable("set-creation"){ //create a new flashcard set. add elements to new set
             SetCreationnView(navController)
         }
+        composable("study-set/{flashsetName}") { backStackEntry ->
+            val flashsetName = backStackEntry.arguments?.getString("flashsetName") ?: ""
+            StudySetView(navController, flashsetName)
+        }
         composable("quiz") { //create quizes based on card sets
             //TODO: lag fil og spill
         }
