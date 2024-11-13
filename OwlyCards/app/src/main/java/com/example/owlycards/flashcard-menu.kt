@@ -98,7 +98,8 @@ fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifie
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp),
+                                .padding(8.dp)
+                                .clickable { navController.navigate("study-set/$setName") },
                         ) {
                             Text( //the name of the saved flashcard set
                                 text = setName,
