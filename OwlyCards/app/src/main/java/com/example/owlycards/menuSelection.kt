@@ -96,7 +96,7 @@ fun MenuSelectionViewPage(navController: NavController, modifier: Modifier = Mod
                 modifier = Modifier
                     .fillMaxWidth() //row takes the full width
                     .padding(8.dp).clickable { //centers
-                        //navController.navigate("matchmaking") crashes because leads to nowhere yet
+                        navController.navigate("matchmaking")
                     }, //places the checkboxes all the way on the right
             ) {
                 Text(

@@ -73,7 +73,11 @@ fun OwlyApp() {
             //TODO: lag fil og spill
         }
         composable("matchmaking") { //match making games using flashcard sets
-            //TODO: lag fil og spill
+            MatchingMenuView(navController)
+        }
+        composable("match-set/{flashsetName}") { backStackEntry ->
+            val flashsetName = backStackEntry.arguments?.getString("flashsetName") ?: ""
+            MatchSetView(navController, flashsetName)
         }
     }
 }
