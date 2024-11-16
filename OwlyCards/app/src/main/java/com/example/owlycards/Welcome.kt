@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,12 +33,12 @@ import androidx.navigation.NavController
 
 
 @Composable
-fun StartMenuView(viewModel: SharedViewModel, navController: NavController, modifier: Modifier = Modifier) {
-    StartMenuViewPage(viewModel, navController, modifier.fillMaxSize().wrapContentSize(Alignment.Center))
+fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
+    WelcomeViewMenu(viewModel, navController, modifier.fillMaxSize().wrapContentSize(Alignment.Center))
 }
 
 @Composable
-fun StartMenuViewPage(viewModel: SharedViewModel, navController: NavController, modifier: Modifier = Modifier) {
+fun WelcomeViewMenu(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
 
     var name by remember { mutableStateOf("") }
     var nameNotFilled by remember { mutableStateOf(false)}
@@ -133,8 +134,8 @@ fun StartMenuViewPage(viewModel: SharedViewModel, navController: NavController, 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(onClick = {
-                    viewModel.config.name = name
-                    viewModel.config.setupComplete = true
+                    viewModel.value.config.name = name
+                    viewModel.value.config.setupComplete = true
                     navController.navigate("menuSelection")
                 }) {
                     Text("Begin")

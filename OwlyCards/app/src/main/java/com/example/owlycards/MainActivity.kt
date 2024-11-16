@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -20,7 +19,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             OwlyCardsTheme {
-                OwlyApp()
+                OwlyApp(SharedViewModel(LocalContext.current))
             }
         }
     }
@@ -30,22 +29,19 @@ class MainActivity : ComponentActivity() {
 
 // Main app setup (run on creation)
 @Composable
-fun OwlyApp() {
-    val sharedViewModel = SharedViewModel(LocalContext.current)
-    val viewModel by remember { mutableStateOf(sharedViewModel) }
+fun OwlyApp(initViewModel: SharedViewModel) {
+    val viewModel = remember { mutableStateOf(initViewModel) }
 
     val navController = rememberNavController() // Nav controller
 
+    // Determine start destination
+    val startDest = if (viewModel.value.config.setupComplete) "menuSelection" else "welcome"
+
     // Define routes
-    NavHost(navController = navController, startDestination = "welcome") { //program starts at
+    NavHost(navController = navController, startDestination = startDest) { //program starts at
                                                                              //startMenu screen
         composable("welcome") { //start menu screen
-            // If setup is already complete, redirect
-            if (viewModel.config.setupComplete) {
-                navController.navigate("menuSelection")
-            }
-
-            StartMenuView(viewModel, navController)
+            WelcomeView(viewModel, navController)
         }
         composable("menuSelection") { //menu selection screen
             MenuSelectionView(navController)

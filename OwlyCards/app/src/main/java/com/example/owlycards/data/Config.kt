@@ -16,7 +16,7 @@ class Config
         set(value) { _setupComplete = value; saveState() }
 
 
-    // Constructor
+    // Constructor (Loads data (if exists) from internal storage)
     init {
         val file = File(context.filesDir, "config.csv")
         if (file.exists()) {
@@ -30,7 +30,7 @@ class Config
         }
     }
 
-    // Save state to disk
+    // Save state (data) to internal storage
     private fun saveState() {
         // Prep data
         val data =
