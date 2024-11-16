@@ -125,7 +125,7 @@ fun StudySetViewPage(navController: NavController, flashsetName: String, modifie
                 Button( //goes back to previous menu
                     modifier = Modifier.width(120.dp).padding(8.dp),
                     onClick = {
-                    navController.navigate("cards_sets")
+                        navController.popBackStack()
                 }){
                     Text(
                         text = "Back"

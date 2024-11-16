@@ -139,7 +139,7 @@ fun MatchSetViewPage(navController: NavController, flashsetName: String, modifie
                     modifier = Modifier.width(120.dp).padding(8.dp),
                     onClick = {
                         // Check if the answer is matching or not
-                        if (cardSet[currentQuestion].first == shuffeledQuestions[currentAnswer].first) {
+                        if (cardSet[currentQuestion].second == shuffeledQuestions[currentAnswer].second) {
                             isMatching = true
                             // If current question is the last question, they won
                             if (currentQuestion + 1 >= cardSet.size) {
