@@ -21,20 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
-@Preview(showBackground = true)
-@Composable
-fun MenuSelectionPreview(){
-
-}
 
 @Composable
 fun MenuSelectionView(navController: NavController, modifier: Modifier = Modifier) {
-    MenuSelectionViewPage(navController = navController, modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center))
+    MenuSelectionViewPage(navController = navController, modifier = modifier.fillMaxSize().wrapContentSize(Alignment.Center))
 }
 
 @Composable

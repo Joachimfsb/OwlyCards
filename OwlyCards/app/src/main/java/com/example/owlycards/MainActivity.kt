@@ -4,18 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -33,28 +26,26 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Function gets the shared viewmodel
-@Composable
-inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
-    val navGraphRoute = destination.parent?.route ?: return viewModel()
-    val parentEntry = remember(this) {
-        navController.getBackStackEntry(navGraphRoute)
-    }
-    return viewModel(parentEntry)
-}
 
 
 // Main app setup (run on creation)
 @Composable
-@Preview (showBackground = true)
 fun OwlyApp() {
+    val sharedViewModel = SharedViewModel(LocalContext.current)
+    val viewModel by remember { mutableStateOf(sharedViewModel) }
+
     val navController = rememberNavController() // Nav controller
 
     // Define routes
-    NavHost(navController = navController, startDestination = "startMenu") { //program starts at
+    NavHost(navController = navController, startDestination = "welcome") { //program starts at
                                                                              //startMenu screen
-        composable("startMenu") { //start menu screen
-            StartMenuView(navController)
+        composable("welcome") { //start menu screen
+            // If setup is already complete, redirect
+            if (viewModel.config.setupComplete) {
+                navController.navigate("menuSelection")
+            }
+
+            StartMenuView(viewModel, navController)
         }
         composable("menuSelection") { //menu selection screen
             MenuSelectionView(navController)
