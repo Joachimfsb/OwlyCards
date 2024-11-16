@@ -222,13 +222,20 @@ fun deleteFromList(list: MutableState<MutableList<Pair<String, String>>>, checkb
 //saves a file in localstorage with a user specified name and its contents are the Q&A stored in
 //writtenCardSet
 fun SaveFlashcardSet(QandA: MutableState<MutableList<Pair<String, String>>>, context: Context, setName: MutableState<String>) {
-    //Convert lisr entries to CSV format with "q,a" per line
+    //Convert list entries to CSV format with "q,a" per line
     val data = QandA.value.joinToString("\n") { (q, a) ->
         "$q¤$a"
     }
 
     //save to file with the user specified setName
-    context.openFileOutput("${setName.value}.csv", Context.MODE_PRIVATE).use {
-        it.write(data.toByteArray())
+    val directory = File(context.filesDir, "flashcard_sets")
+    // Create dir if it does not exist
+    if (!directory.exists()) {
+        val res = directory.mkdir()
+        if (!res) {
+            return // Fail
+        }
     }
+    val file = File(directory, "${setName.value}.csv")
+    file.writeText(data)
 }
