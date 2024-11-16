@@ -57,9 +57,11 @@ fun FlashMenuView(navController: NavController, modifier: Modifier = Modifier) {
 fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val savedSets = remember { mutableStateOf(mutableListOf<String>().apply {
-        addAll(PrintStoredSets(context)) //adds all filenames to list(savedSets)
+        addAll(PrintStoredSets(context)) // Adds all filenames to list(savedSets)
     })}
-    val checkboxStates = remember { mutableStateOf(MutableList(savedSets.value.size) { false }) } //initialize checkbox states to false
+
+    // Initialize checkbox states to false
+    val checkboxStates = remember { mutableStateOf(MutableList(savedSets.value.size) { false }) }
 
     Box(
         modifier = modifier.fillMaxSize().background(Color.DarkGray).wrapContentSize(Alignment.Center)
@@ -77,7 +79,7 @@ fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifie
 
             Row() {
                 Button(onClick = {
-                    deleteFromList(savedSets, checkboxStates, context) //deletes marked sets
+                    deleteFromList(savedSets, checkboxStates, context) // Deletes marked sets
                 }) {
                     Text("Delete")
                 }
@@ -87,7 +89,7 @@ fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifie
                     Text("Back") // Goes back to previous screen
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Button(onClick = { //goes to screeen where you can create card sets
+                Button(onClick = { // Goes to screeen where you can create card sets
                     navController.navigate("set-creation")
                 }) {
                     Text("New Set")
@@ -96,10 +98,10 @@ fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifie
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (savedSets.value.isNotEmpty()) { //this is shown on screen if there are saved sets
-                LazyColumn { //lazy column so the column can expand
+            if (savedSets.value.isNotEmpty()) { // This is shown on screen if there are saved sets
+                LazyColumn { // Lazy column so the column can expand
                     itemsIndexed(savedSets.value) { index, setName ->
-                        Row( //each set gets its own row wich fills the width of screen
+                        Row( // Each set gets its own row wich fills the width of screen
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -147,15 +149,15 @@ fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifie
                                 }
                             }
 
-                            Checkbox( //the checkbox state of card set. can be marked for deletion
+                            Checkbox( // The checkbox state of card set. can be marked for deletion
                                 checked = checkboxStates.value[index],
                                 onCheckedChange = { isChecked ->
                                     checkboxStates.value = checkboxStates.value.toMutableList().apply {
                                         set(index, isChecked)
                                     }
                                 },
-                                colors = CheckboxDefaults.colors( //sets border and square to white
-                                                                  //checkmark color is black
+                                colors = CheckboxDefaults.colors( // Sets border and square to white
+                                                                  // checkmark color is black
                                     checkedColor = Color.Black,
                                     checkmarkColor = Color.White,
                                     uncheckedColor = Color.Black
@@ -165,7 +167,7 @@ fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifie
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-            } else { //this is shown on screen if there are no saved sets
+            } else { // This is shown on screen if there are no saved sets
                 Text(
                     text = "No flashcard sets have been created",
                     color = Color.White
