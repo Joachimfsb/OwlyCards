@@ -10,11 +10,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SmallAppBar(title: String, showBack: Boolean) {
+fun SmallAppBar(title: String, showBackBtn: Boolean, navController: NavController) {
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -23,8 +23,8 @@ fun SmallAppBar(title: String, showBack: Boolean) {
         ),
         title = { Text(title) },
         navigationIcon = {
-            if (showBack) {
-                IconButton(onClick = { /* do something */ }) {
+            if (showBackBtn) {
+                IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Localized description"

@@ -1,6 +1,5 @@
 package com.example.owlycards
 
-import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,29 +11,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,27 +38,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
+fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController: NavController) {
 
     val context = LocalContext.current
 
     val flashcardSets = viewModel.value.getFlashcardSets()
 
-    // The two lines below allow for manual recomposition
-    var recompose by remember { mutableIntStateOf(0) } // Increment this variable when you wish to recompose
-    LaunchedEffect(recompose) { } // Triggers the actual recomposition
+    var promptDeletionOfFlashcardSet by remember { mutableStateOf<String?>(null) }
 
     // Content
     Scaffold(
-        topBar = { SmallAppBar("Flashcard sets", false) }
+        topBar = { SmallAppBar("Flashcard Sets", false, navController) }
     ) { padding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -141,7 +133,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                             ) {
                                 IconButton(
                                     onClick = {
-
+                                        promptDeletionOfFlashcardSet = flashcardSet.second.name
                                     },
                                 ) {
                                     Icon(Icons.Filled.Delete, "Delete flashcard set")
@@ -156,8 +148,6 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
             }
         }
     }
-
-
 
 
     // Floating "Create Set" button
@@ -176,15 +166,39 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 70.dp)
         )
     }
-}
 
-// Removes flashcard sets where checkbox has value true/are marked
-fun deleteFromList(context: Context, viewModel: MutableState<SharedViewModel>, checkboxStates: MutableState<MutableList<Boolean>>) {
-    val flashcardList = viewModel.value.getFlashcardSets().toList()
-    // Loop through each checkbox
-    checkboxStates.value.forEachIndexed { i, state ->
-        if (state) { // Set to true means delete
-            viewModel.value.removeFlashcardSet(context, flashcardList[i].first) // Delete from viewmodel
-        }
+
+    if (promptDeletionOfFlashcardSet != null) {
+        AlertDialog(
+            icon = { Icon(Icons.Filled.Warning, "Warning") },
+            title = { Text("Confirm deletion") },
+            text = {
+                Text("Are you sure you want to delete the flashcard set '$promptDeletionOfFlashcardSet'?")
+            },
+            onDismissRequest = {
+                promptDeletionOfFlashcardSet = null
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.value.removeFlashcardSet(context, promptDeletionOfFlashcardSet ?: "")
+                        promptDeletionOfFlashcardSet = null
+                    }
+                ) {
+                    Text("Yes, delete it")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        promptDeletionOfFlashcardSet = null
+                    }
+                ) {
+                    Text("No, keep it")
+                }
+            }
+        )
+        return
     }
 }
+
