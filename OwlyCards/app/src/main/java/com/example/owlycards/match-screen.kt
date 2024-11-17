@@ -22,24 +22,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.owlycards.data.FlashcardSet
 
 @Composable
-fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet, modifier: Modifier = Modifier) {
-    MatchSetViewPage(navController = navController, flashcardSet, modifier = modifier.fillMaxSize().wrapContentSize(
+fun MatchSetView(navController: NavController, flashsetName: String, modifier: Modifier = Modifier) {
+    MatchSetViewPage(navController = navController, flashsetName, modifier = Modifier.fillMaxSize().wrapContentSize(
         Alignment.Center))
 }
 
 @Composable
-fun MatchSetViewPage(navController: NavController, flashcardSet: FlashcardSet, modifier: Modifier = Modifier) {
-    val flashcards = flashcardSet.getFlashcards()
+fun MatchSetViewPage(navController: NavController, flashsetName: String, modifier: Modifier = Modifier) {
+    val context = LocalContext.current //gets context for file manipulation
+    val cardSet = LoadSet(context, flashsetName) //loads the flashcards set Q&A's into list
 
-    val shuffeledQuestions = remember(flashcards) { // Randomize the order of the answers in a new list
-        flashcards.shuffled() // Shuffle all the questions in the card list
+    val shuffeledQuestions = remember(cardSet) { // Randomize the order of the answers in a new list
+        cardSet.shuffled() // Shuffle all the questions in the card list
     }
 
     var currentQuestion by remember { mutableStateOf(0) } // Index of the current question
@@ -56,7 +57,7 @@ fun MatchSetViewPage(navController: NavController, flashcardSet: FlashcardSet, m
             verticalArrangement = Arrangement.Center
         ) { // Display all content in a column and center it on the screen
             Text(
-                text = "Matching Flashcard Set:\n           ${flashcardSet.name}",
+                text = "Matching Flashcard Set:\n           $flashsetName", 
                 color = Color.White,
                 fontSize = 30.sp
             ) // Header text
@@ -80,12 +81,12 @@ fun MatchSetViewPage(navController: NavController, flashcardSet: FlashcardSet, m
                 Text( // Display the question of the current Question-card
                     fontSize = 20.sp,
                     textAlign = TextAlign.Center,
-                    text = flashcards[currentQuestion].question
+                    text = cardSet[currentQuestion].first
                 )
             }
 
             Text( // Text displaying which card user is on out of all the cards in the set
-                text = "${currentQuestion + 1} / ${flashcards.size}",
+                text = "${currentQuestion + 1} / ${cardSet.size}",
                 color = Color.White
             )
 
@@ -106,7 +107,7 @@ fun MatchSetViewPage(navController: NavController, flashcardSet: FlashcardSet, m
                 Text( // Display the answer of the current Answer-card
                     fontSize = 20.sp,
                     textAlign = TextAlign.Center,
-                    text = shuffeledQuestions[currentAnswer].answer
+                    text = shuffeledQuestions[currentAnswer].second
                 )
             }
 
@@ -138,10 +139,10 @@ fun MatchSetViewPage(navController: NavController, flashcardSet: FlashcardSet, m
                     modifier = Modifier.width(120.dp).padding(8.dp),
                     onClick = {
                         // Check if the answer is matching or not
-                        if (flashcards[currentQuestion].answer == shuffeledQuestions[currentAnswer].answer) {
+                        if (cardSet[currentQuestion].second == shuffeledQuestions[currentAnswer].second) {
                             isMatching = true
                             // If current question is the last question, they won
-                            if (currentQuestion + 1 >= flashcards.size) {
+                            if (currentQuestion + 1 >= cardSet.size) {
                                 won = true
                             } else { // Goes to next question
                                 currentQuestion++
@@ -177,14 +178,15 @@ fun MatchSetViewPage(navController: NavController, flashcardSet: FlashcardSet, m
             }
 
             // Message for feedback/reponse to the user
-            val message = if (won) {
-                "You won the Matching-game!"
+            val message: String
+            if (won) {
+                message = "You won the Matching-game!"
             } else if (isMatching == true) {
-                "Correct Match! Please Continue"
+                message = "Correct Match! Please Continue"
             } else if (isMatching == null) { // Not matched any answers yet
-                ""
+                message = ""
             } else {
-                "Incorrect Match, Please Try Again!"
+                message = "Incorrect Match, Please Try Again!"
             }
 
             Text(
