@@ -48,7 +48,7 @@ fun OwlyApp(initViewModel: SharedViewModel) {
             FlashMenuView(viewModel, navController)
         }
         composable("set-creation"){ //create a new flashcard set. add elements to new set
-            SetCreationnView(viewModel, navController)
+            SetCreationView(viewModel, navController)
         }
         composable("study-set/{flashcardSetName}") { backStackEntry ->
             // Parse args

@@ -17,11 +17,16 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,7 +45,7 @@ fun SetCreationPreview(){
 }
 
 @Composable
-fun SetCreationnView(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
+fun SetCreationView(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
     SetCreationViewPage(viewModel, navController,
         modifier
             .fillMaxSize()
@@ -49,15 +54,14 @@ fun SetCreationnView(viewModel: MutableState<SharedViewModel>, navController: Na
 
 @Composable
 fun SetCreationViewPage(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
-    val writtenCardSet = remember { mutableStateOf(mutableListOf<Flashcard>()) }
-    //^where questions and answers will be stored. Need to be list and not map to avoid bug
-    //where only the first element would be saved to file
-    val checkboxStates = remember { mutableStateOf(mutableListOf<Boolean>()) } //status of checkbox
+    var writtenCardSet = remember { mutableStateListOf<Flashcard>() }
+    var checkboxStates = remember { mutableStateListOf<Boolean>() } //status of checkbox
     var tmpQuestion by remember { mutableStateOf("") } //the temporary text in the text field
     var tmpAnswer by remember { mutableStateOf("") } //the temporary text in the text field
     var saveBool by remember { mutableStateOf(false) } //decides what's shown on screen
-    val setName = remember { mutableStateOf("") }   //user gives name to flashcardset
+    val setName = remember { mutableStateOf("") }   //user gives name to flashcard set
     val context = LocalContext.current
+
 
     Box(
         modifier = modifier
@@ -78,17 +82,19 @@ fun SetCreationViewPage(viewModel: MutableState<SharedViewModel>, navController:
                     Button(onClick = {
                         navController.navigate("cards_sets")
                     }) {
-                        Text(
-                            text = "Cancel"
-                        )
+                        Text("Cancel")
                     }
                     Button(onClick = {
-                        deleteFromList(writtenCardSet, checkboxStates) //deletes marked sets with
-                                                                       //marked checkboxes
+                        var offset = 0
+                        for (i in checkboxStates.indices) {
+                            if (checkboxStates[i + offset]) { //if checkbox is marked
+                                checkboxStates.removeAt(i + offset)
+                                writtenCardSet.removeAt(i + offset)
+                                offset--
+                            }
+                        }
                     }) {
-                        Text(
-                            text = "Delete"
-                        )
+                        Text("Delete")
                     }
                 }
 
@@ -103,7 +109,7 @@ fun SetCreationViewPage(viewModel: MutableState<SharedViewModel>, navController:
                     label = { Text("Answer") }
                 )
                 Row {
-                    if (writtenCardSet.value.isNotEmpty()) { //if a Q&A has been made, button shows
+                    if (writtenCardSet.isNotEmpty()) { //if a Q&A has been made, button shows
                         Button(onClick = {
                             saveBool = !saveBool //changes layout/look
                         }) {
@@ -118,7 +124,8 @@ fun SetCreationViewPage(viewModel: MutableState<SharedViewModel>, navController:
                                                                             //empty
                         } else { //when both Q&A has values
                             // Add the card to the set and reset fields
-                            addToSet(tmpQuestion, tmpAnswer, writtenCardSet, checkboxStates)
+                            writtenCardSet.add(Flashcard(tmpQuestion, tmpAnswer))
+                            checkboxStates.add(false)
                             tmpQuestion = ""
                             tmpAnswer = ""
                         }
@@ -129,9 +136,9 @@ fun SetCreationViewPage(viewModel: MutableState<SharedViewModel>, navController:
                     }
                 }
 
-                if (writtenCardSet.value.isNotEmpty()) { //if there are Q&As in the list
+                if (writtenCardSet.isNotEmpty()) { //if there are Q&As in the list
                     LazyColumn { //lazyColumn used so the column can grow
-                        itemsIndexed(writtenCardSet.value) { i, flashcard -> //iterate over each set
+                        itemsIndexed(writtenCardSet) { i, flashcard -> //iterate over each set
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
@@ -153,12 +160,9 @@ fun SetCreationViewPage(viewModel: MutableState<SharedViewModel>, navController:
                                         checkmarkColor = Color.Black,
                                         uncheckedColor = Color.White
                                     ),
-                                    checked = checkboxStates.value[i], //get the current checkbox state
+                                    checked = checkboxStates[i], //get the current checkbox state
                                     onCheckedChange = { isChecked ->
-                                        checkboxStates.value = //change value when clicked
-                                            checkboxStates.value.toMutableList().apply {
-                                                set(i, isChecked)
-                                            }
+                                        checkboxStates[i] = isChecked
                                     }
                                 )
                             }
@@ -186,7 +190,7 @@ fun SetCreationViewPage(viewModel: MutableState<SharedViewModel>, navController:
                     // Create flashcard set
                     val flashcardSet = FlashcardSet(context, setName.value)
                     val flashcardList = mutableListOf<Flashcard>()
-                    writtenCardSet.value.forEach {
+                    writtenCardSet.forEach {
                         flashcardList.add(it)
                     }
                     flashcardSet.setFlashcards(flashcardList)
@@ -206,32 +210,5 @@ fun SetCreationViewPage(viewModel: MutableState<SharedViewModel>, navController:
     }
 }
 
-//adds a new item to the list
-fun addToSet(question: String, answer: String, list: MutableState<MutableList<Flashcard>>, checkboxStates: MutableState<MutableList<Boolean>>) {
-    //adds new Q&A to list. Uses list with pair and not map to avoid bug specified earlier
-    list.value.add(Flashcard(question, answer))
-
-    //sets the new card/Q&A checkbox to false
-    checkboxStates.value = checkboxStates.value.toMutableList().apply { add(false) }
-}
-
-//removes items where checkbox has value true
-fun deleteFromList(list: MutableState<MutableList<Flashcard>>, checkboxStates: MutableState<MutableList<Boolean>>){
-    // Create a new list to hold items that are not checked
-    val updatedList = mutableListOf<Flashcard>()
-    val updatedCheckboxStates = mutableListOf<Boolean>()
-
-    //iterate over the entries of the list with index
-    list.value.forEachIndexed { index, qa ->
-        if (index < checkboxStates.value.size && !checkboxStates.value[index]) { //if checkbox is
-                                                                                 //not marked
-            updatedList.add(qa) //add card/Q&A to updated list
-            updatedCheckboxStates.add(false) //add card/Q&A checkbox to updated checkbox with false
-        }
-    }
-
-    list.value = updatedList //gives list updatedList's elements
-    checkboxStates.value = updatedCheckboxStates //gives checkboxes updatedCheckboxStates's elements
-}
 
 

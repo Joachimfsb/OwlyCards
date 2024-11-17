@@ -21,9 +21,13 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,6 +59,10 @@ fun FlashMenuViewPage(viewModel: MutableState<SharedViewModel>, navController: N
     // Initialize checkbox states to false
     val checkboxStates = remember { mutableStateOf(MutableList(flashcardSets.size) { false }) }
 
+    // The two lines below allow for manual recomposition
+    var recompose by remember { mutableIntStateOf(0) } // Increment this variable when you wish to recompose
+    LaunchedEffect(recompose) { } // Triggers the actual recomposition
+
     Box(
         modifier = modifier.fillMaxSize().background(Color.DarkGray).wrapContentSize(Alignment.Center)
     ) {
@@ -72,6 +80,7 @@ fun FlashMenuViewPage(viewModel: MutableState<SharedViewModel>, navController: N
             Row {
                 Button(onClick = {
                     deleteFromList(context, viewModel, checkboxStates) // Deletes marked sets
+                    recompose++
                 }) {
                     Text("Delete")
                 }
