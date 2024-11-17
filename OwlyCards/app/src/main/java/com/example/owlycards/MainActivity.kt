@@ -35,16 +35,13 @@ fun OwlyApp(initViewModel: SharedViewModel) {
     val navController = rememberNavController() // Nav controller
 
     // Determine start destination
-    val startDest = if (viewModel.value.config.setupComplete) "menuSelection" else "welcome"
+    val startDest = if (viewModel.value.config.setupComplete) "cards_sets" else "welcome"
 
     // Define routes
     NavHost(navController = navController, startDestination = startDest) { //program starts at
                                                                              //startMenu screen
         composable("welcome") { //start menu screen
             WelcomeView(viewModel, navController)
-        }
-        composable("menuSelection") { //menu selection screen
-            MenuSelectionView(navController)
         }
         composable("cards_sets") { //card sets screen. create and delete card sets
             FlashMenuView(navController)
@@ -59,8 +56,9 @@ fun OwlyApp(initViewModel: SharedViewModel) {
         composable("quiz") { //create quizes based on card sets
             //TODO: lag fil og spill
         }
-        composable("matchmaking") { //match making games using flashcard sets
-            //TODO: lag fil og spill
+        composable("match-set/{flashsetName}") { backStackEntry ->
+            val flashsetName = backStackEntry.arguments?.getString("flashsetName") ?: ""
+            MatchSetView(navController, flashsetName)
         }
     }
 }

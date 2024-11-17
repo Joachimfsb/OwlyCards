@@ -136,7 +136,7 @@ fun WelcomeViewMenu(viewModel: MutableState<SharedViewModel>, navController: Nav
                 Button(onClick = {
                     viewModel.value.config.name = name
                     viewModel.value.config.setupComplete = true
-                    navController.navigate("menuSelection")
+                    navController.navigate("cards_sets")
                 }) {
                     Text("Begin")
                 }
