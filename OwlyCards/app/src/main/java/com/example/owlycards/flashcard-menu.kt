@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -33,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role.Companion.Checkbox
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,9 +57,11 @@ fun FlashMenuView(navController: NavController, modifier: Modifier = Modifier) {
 fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val savedSets = remember { mutableStateOf(mutableListOf<String>().apply {
-        addAll(PrintStoredSets(context)) //adds all filenames to list(savedSets)
+        addAll(PrintStoredSets(context)) // Adds all filenames to list(savedSets)
     })}
-    val checkboxStates = remember { mutableStateOf(MutableList(savedSets.value.size) { false }) } //initialize checkbox states to false
+
+    // Initialize checkbox states to false
+    val checkboxStates = remember { mutableStateOf(MutableList(savedSets.value.size) { false }) }
 
     Box(
         modifier = modifier.fillMaxSize().background(Color.DarkGray).wrapContentSize(Alignment.Center)
@@ -64,25 +69,27 @@ fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifie
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "FlashCardMenu",
                 color = Color.White,
                 fontSize = 30.sp
             )
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             Row() {
                 Button(onClick = {
-                    deleteFromList(savedSets, checkboxStates, context) //deletes marked sets
+                    deleteFromList(savedSets, checkboxStates, context) // Deletes marked sets
                 }) {
                     Text("Delete")
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Button(onClick = { navController.navigate("menuSelection") }) {
-                    Text("Back") //goes back to previous screen
+                // Back-button
+                Button(onClick = { navController.popBackStack() }) {
+                    Text("Back") // Goes back to previous screen
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Button(onClick = { //goes to screeen where you can create card sets
+                Button(onClick = { // Goes to screeen where you can create card sets
                     navController.navigate("set-creation")
                 }) {
                     Text("New Set")
@@ -91,39 +98,76 @@ fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifie
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (savedSets.value.isNotEmpty()) { //this is shown on screen if there are saved sets
-                LazyColumn { //lazy column so the column can expand
+            if (savedSets.value.isNotEmpty()) { // This is shown on screen if there are saved sets
+                LazyColumn { // Lazy column so the column can expand
                     itemsIndexed(savedSets.value) { index, setName ->
-                        Row( //each set gets its own row wich fills the width of screen
+                        Row( // Each set gets its own row wich fills the width of screen
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
-                                .clickable { navController.navigate("study-set/$setName") },
+                                .padding(10.dp)
+                                .background(
+                                    Color.LightGray,
+                                    shape = RoundedCornerShape(16.dp)
+                                ) // Give the item a rounded light gray background
                         ) {
-                            Text( //the name of the saved flashcard set
-                                text = setName,
-                                modifier = Modifier.weight(1f),
-                                color = Color.White
-                            )
-                            Checkbox( //the checkbox state of card set. can be marked for deletion
+                            Column(
+                                modifier = Modifier.height(100.dp).width(300.dp).padding(10.dp)
+                            ) { // Column containing both the name of the card set and gamemode buttons
+                                Text( // The name of the saved flashcard set
+                                    text = findName(setName),
+                                    fontSize = 20.sp,
+                                    modifier = Modifier.weight(2f).fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+
+                                // Buttons to start the different gamemodes:
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    // Study button
+                                    Button(onClick = {
+                                        navController.navigate("study-set/$setName")
+                                    }) {
+                                        Text("Study")
+                                    }
+
+                                    // Match button
+                                    Button(onClick = {
+                                        navController.navigate("match-set/$setName")
+                                    }) {
+                                        Text("Match")
+                                    }
+
+                                    // Quiz button
+                                    Button(onClick = {
+                                        //navController.navigate("quiz-set/$setName")
+                                    }) {
+                                        Text("Quiz")
+                                    }
+                                }
+                            }
+
+                            Checkbox( // The checkbox state of card set. can be marked for deletion
                                 checked = checkboxStates.value[index],
                                 onCheckedChange = { isChecked ->
                                     checkboxStates.value = checkboxStates.value.toMutableList().apply {
                                         set(index, isChecked)
                                     }
                                 },
-                                colors = CheckboxDefaults.colors( //sets border and square to white
-                                                                  //checkmark color is black
-                                    checkedColor = Color.White,
-                                    checkmarkColor = Color.Black,
-                                    uncheckedColor = Color.White
+                                colors = CheckboxDefaults.colors( // Sets border and square to white
+                                                                  // checkmark color is black
+                                    checkedColor = Color.Black,
+                                    checkmarkColor = Color.White,
+                                    uncheckedColor = Color.Black
                                 )
                             )
                         }
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-            } else { //this is shown on screen if there are no saved sets
+            } else { // This is shown on screen if there are no saved sets
                 Text(
                     text = "No flashcard sets have been created",
                     color = Color.White
@@ -162,4 +206,18 @@ fun deleteFromList(list: MutableState<MutableList<String>>, checkboxStates: Muta
 
     list.value = updatedList
     checkboxStates.value = updatedCheckbox
+}
+
+// Function to find the name a Flashcard-set (Remove filetype: .csv / .txt)
+fun findName(name: String): String {
+    val temp: String
+
+    // If the name is longer than 4 letters, return a substring
+    if (name.length >= 4) {
+        temp = name.substring(0, name.length - 4)
+    } else { // Else return the name
+        temp = name
+    }
+
+    return temp
 }

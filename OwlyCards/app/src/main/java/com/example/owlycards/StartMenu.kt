@@ -60,7 +60,7 @@ fun StartMenuViewPage(navController: NavController, modifier: Modifier = Modifie
             Spacer(modifier = Modifier.height(16.dp)) //decides how much space unerneeth image
 
             Button(onClick = { //if delete button is clicked
-                navController.navigate("menuSelection")
+                navController.navigate("cards_sets")
             }) {
                 Text(
                     text = "Start"

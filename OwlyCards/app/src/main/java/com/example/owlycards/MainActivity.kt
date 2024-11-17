@@ -56,9 +56,6 @@ fun OwlyApp() {
         composable("startMenu") { //start menu screen
             StartMenuView(navController)
         }
-        composable("menuSelection") { //menu selection screen
-            MenuSelectionView(navController)
-        }
         composable("cards_sets") { //card sets screen. create and delete card sets
             FlashMenuView(navController)
         }
@@ -72,8 +69,9 @@ fun OwlyApp() {
         composable("quiz") { //create quizes based on card sets
             //TODO: lag fil og spill
         }
-        composable("matchmaking") { //match making games using flashcard sets
-            //TODO: lag fil og spill
+        composable("match-set/{flashsetName}") { backStackEntry ->
+            val flashsetName = backStackEntry.arguments?.getString("flashsetName") ?: ""
+            MatchSetView(navController, flashsetName)
         }
     }
 }
