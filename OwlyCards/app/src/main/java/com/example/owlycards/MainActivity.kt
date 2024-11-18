@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,21 +45,35 @@ fun OwlyApp(initViewModel: SharedViewModel) {
             WelcomeView(viewModel, navController)
         }
         composable("cards_sets") { //card sets screen. create and delete card sets
-            FlashMenuView(navController)
+            FlashMenuView(viewModel, navController)
         }
         composable("set-creation"){ //create a new flashcard set. add elements to new set
-            SetCreationnView(navController)
+            SetCreationView(viewModel, navController)
         }
-        composable("study-set/{flashsetName}") { backStackEntry ->
-            val flashsetName = backStackEntry.arguments?.getString("flashsetName") ?: ""
-            StudySetView(navController, flashsetName)
+        composable("study-set/{flashcardSetName}") { backStackEntry ->
+            // Parse args
+            val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
+            val flashcardSet = viewModel.value.getFlashcardSet(flashcardSetName)
+            // Does flashcard set exist?
+            if (flashcardSet == null) {
+                Text("Something went wrong, this study set does not exist!") // No!
+            } else {
+                StudySetView(navController, flashcardSet) // Yes!
+            }
         }
         composable("quiz") { //create quizes based on card sets
             //TODO: lag fil og spill
         }
-        composable("match-set/{flashsetName}") { backStackEntry ->
-            val flashsetName = backStackEntry.arguments?.getString("flashsetName") ?: ""
-            MatchSetView(navController, flashsetName)
+        composable("match-set/{flashcardSetName}") { backStackEntry ->
+            // Parse args
+            val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
+            val flashcardSet = viewModel.value.getFlashcardSet(flashcardSetName)
+            // Does flashcard set exist?
+            if (flashcardSet == null) {
+                Text("Something went wrong, this study set does not exist!") // No!
+            } else {
+                MatchSetView(navController, flashcardSet) // Yes!
+            }
         }
     }
 }

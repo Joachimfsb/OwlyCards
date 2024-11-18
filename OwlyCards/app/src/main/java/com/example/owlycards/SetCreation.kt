@@ -1,6 +1,5 @@
 package com.example.owlycards
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,18 +10,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,7 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import java.io.File
+import com.example.owlycards.data.Flashcard
+import com.example.owlycards.data.FlashcardSet
 
 @Preview(showBackground = true)
 @Composable
@@ -40,24 +45,29 @@ fun SetCreationPreview(){
 }
 
 @Composable
-fun SetCreationnView(navController: NavController, modifier: Modifier = Modifier) {
-    SetCreationViewPage(navController = navController, modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center))
+fun SetCreationView(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
+    SetCreationViewPage(viewModel, navController,
+        modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center))
 }
 
 @Composable
-fun SetCreationViewPage(navController: NavController, modifier: Modifier = Modifier) {
-    val writtenCardSet = remember { mutableStateOf(mutableListOf<Pair<String, String>>()) }
-    //^where questions and answers will be stored. Need to be list and not map to avoid bug
-    //where only the first element would be saved to file
-    val checkboxStates = remember { mutableStateOf(mutableListOf<Boolean>()) } //status of checkbox
+fun SetCreationViewPage(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
+    var writtenCardSet = remember { mutableStateListOf<Flashcard>() }
+    var checkboxStates = remember { mutableStateListOf<Boolean>() } //status of checkbox
     var tmpQuestion by remember { mutableStateOf("") } //the temporary text in the text field
     var tmpAnswer by remember { mutableStateOf("") } //the temporary text in the text field
     var saveBool by remember { mutableStateOf(false) } //decides what's shown on screen
-    var setName = remember { mutableStateOf("") }   //user gives name to flashcardset
-    val context = LocalContext.current //creates a context used for file manipulation
+    val setName = remember { mutableStateOf("") }   //user gives name to flashcard set
+    val context = LocalContext.current
+
 
     Box(
-        modifier = modifier.fillMaxSize().background(Color.DarkGray).wrapContentSize(Alignment.Center)
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.DarkGray)
+            .wrapContentSize(Alignment.Center)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -68,21 +78,23 @@ fun SetCreationViewPage(navController: NavController, modifier: Modifier = Modif
                     color = Color.White,
                     fontSize = 30.sp
                 )
-                Row() {
+                Row {
                     Button(onClick = {
                         navController.navigate("cards_sets")
                     }) {
-                        Text(
-                            text = "Cancel"
-                        )
+                        Text("Cancel")
                     }
                     Button(onClick = {
-                        deleteFromList(writtenCardSet, checkboxStates) //deletes marked sets with
-                                                                       //marked checkboxes
+                        var offset = 0
+                        for (i in checkboxStates.indices) {
+                            if (checkboxStates[i + offset]) { //if checkbox is marked
+                                checkboxStates.removeAt(i + offset)
+                                writtenCardSet.removeAt(i + offset)
+                                offset--
+                            }
+                        }
                     }) {
-                        Text(
-                            text = "Delete"
-                        )
+                        Text("Delete")
                     }
                 }
 
@@ -96,8 +108,8 @@ fun SetCreationViewPage(navController: NavController, modifier: Modifier = Modif
                     onValueChange = { tmpAnswer = it }, //temp changes to what the user writes
                     label = { Text("Answer") }
                 )
-                Row() {
-                    if (writtenCardSet.value.isNotEmpty()) { //if a Q&A has been made, button shows
+                Row {
+                    if (writtenCardSet.isNotEmpty()) { //if a Q&A has been made, button shows
                         Button(onClick = {
                             saveBool = !saveBool //changes layout/look
                         }) {
@@ -112,7 +124,8 @@ fun SetCreationViewPage(navController: NavController, modifier: Modifier = Modif
                                                                             //empty
                         } else { //when both Q&A has values
                             // Add the card to the set and reset fields
-                            addToSet(tmpQuestion, tmpAnswer, writtenCardSet, checkboxStates)
+                            writtenCardSet.add(Flashcard(tmpQuestion, tmpAnswer))
+                            checkboxStates.add(false)
                             tmpQuestion = ""
                             tmpAnswer = ""
                         }
@@ -123,10 +136,9 @@ fun SetCreationViewPage(navController: NavController, modifier: Modifier = Modif
                     }
                 }
 
-                if (writtenCardSet.value.isNotEmpty()) { //if there are Q&As in the list
+                if (writtenCardSet.isNotEmpty()) { //if there are Q&As in the list
                     LazyColumn { //lazyColumn used so the column can grow
-                        items(writtenCardSet.value) { (question, answer) -> //iterate over each set
-                            val index = writtenCardSet.value.indexOfFirst { it.first == question } //gets the index of the current question
+                        itemsIndexed(writtenCardSet) { i, flashcard -> //iterate over each set
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
@@ -135,11 +147,11 @@ fun SetCreationViewPage(navController: NavController, modifier: Modifier = Modif
                                 horizontalArrangement = Arrangement.SpaceBetween // Distribute space evenly
                             ) {
                                 Text( //display the question
-                                    text = "Question: \n$question",
+                                    text = "Question: \n${flashcard.question}",
                                     color = Color.White
                                 )
                                 Text( //display the answer
-                                    text = "Answer: \n$answer",
+                                    text = "Answer: \n${flashcard.answer}",
                                     color = Color.White
                                 )
                                 Checkbox( //sets checkbox. if marked Q&A can be deleted if wanted
@@ -148,12 +160,9 @@ fun SetCreationViewPage(navController: NavController, modifier: Modifier = Modif
                                         checkmarkColor = Color.Black,
                                         uncheckedColor = Color.White
                                     ),
-                                    checked = checkboxStates.value[index], //get the current checkbox state
+                                    checked = checkboxStates[i], //get the current checkbox state
                                     onCheckedChange = { isChecked ->
-                                        checkboxStates.value = //change value when clicked
-                                            checkboxStates.value.toMutableList().apply {
-                                                set(index, isChecked)
-                                            }
+                                        checkboxStates[i] = isChecked
                                     }
                                 )
                             }
@@ -178,7 +187,18 @@ fun SetCreationViewPage(navController: NavController, modifier: Modifier = Modif
                 )
                 Button( onClick = { //saved the flashcard set with the name user chose. Then goes
                                     //back to the flashcard menu
-                    SaveFlashcardSet(writtenCardSet, context, setName)
+                    // Create flashcard set
+                    val flashcardSet = FlashcardSet(context, setName.value)
+                    val flashcardList = mutableListOf<Flashcard>()
+                    writtenCardSet.forEach {
+                        flashcardList.add(it)
+                    }
+                    flashcardSet.setFlashcards(flashcardList)
+
+                    // Store in viewmodel
+                    viewModel.value.addFlashcardSet(flashcardSet.name, flashcardSet)
+
+                    // Navigate
                     navController.navigate("cards_sets")
                 }){
                     Text(
@@ -190,52 +210,5 @@ fun SetCreationViewPage(navController: NavController, modifier: Modifier = Modif
     }
 }
 
-//adds a new item to the list
-fun addToSet(question: String, answer: String, list: MutableState<MutableList<Pair<String, String>>>, checkboxStates: MutableState<MutableList<Boolean>>) {
-    //adds new Q&A to list. Uses list with pair and not map to avoid bug specified earlier
-    list.value.add(Pair(question, answer))
 
-    //sets the new card/Q&A checkbox to false
-    checkboxStates.value = checkboxStates.value.toMutableList().apply { add(false) }
-}
 
-//removes items where checkbox has value true
-fun deleteFromList(list: MutableState<MutableList<Pair<String, String>>>, checkboxStates: MutableState<MutableList<Boolean>>){
-    // Create a new list to hold items that are not checked
-    val updatedList = mutableListOf<Pair<String, String>>()
-    val updatedCheckboxStates = mutableListOf<Boolean>()
-
-    //iterate over the entries of the list with index
-    list.value.forEachIndexed { index, QnA ->
-        val (q, a) = QnA
-        if (index < checkboxStates.value.size && !checkboxStates.value[index]) { //if checkbox is
-                                                                                 //not marked
-            updatedList.add(QnA) //add card/Q&A to updated list
-            updatedCheckboxStates.add(false) //add card/Q&A checkbox to updated checkbox with false
-        }
-    }
-
-    list.value = updatedList //gives list updatedList's elements
-    checkboxStates.value = updatedCheckboxStates //gives checkboxes updatedCheckboxStates's elements
-}
-
-//saves a file in localstorage with a user specified name and its contents are the Q&A stored in
-//writtenCardSet
-fun SaveFlashcardSet(QandA: MutableState<MutableList<Pair<String, String>>>, context: Context, setName: MutableState<String>) {
-    //Convert list entries to CSV format with "q,a" per line
-    val data = QandA.value.joinToString("\n") { (q, a) ->
-        "$q¤$a"
-    }
-
-    //save to file with the user specified setName
-    val directory = File(context.filesDir, "flashcard_sets")
-    // Create dir if it does not exist
-    if (!directory.exists()) {
-        val res = directory.mkdir()
-        if (!res) {
-            return // Fail
-        }
-    }
-    val file = File(directory, "${setName.value}.csv")
-    file.writeText(data)
-}
