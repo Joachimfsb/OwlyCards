@@ -1,9 +1,7 @@
 package com.example.owlycards
 
 import android.content.Context
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,17 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.integerResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role.Companion.Checkbox
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import java.util.Collections.addAll
+import java.io.File
 
 @Preview(showBackground = true)
 @Composable
@@ -50,7 +43,7 @@ fun FlashMenuPreview(){
 
 @Composable
 fun FlashMenuView(navController: NavController, modifier: Modifier = Modifier) {
-    FlashMenuViewPage(navController = navController, modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center))
+    FlashMenuViewPage(navController = navController, modifier = modifier.fillMaxSize().wrapContentSize(Alignment.Center))
 }
 
 @Composable
@@ -181,10 +174,10 @@ fun FlashMenuViewPage(navController: NavController, modifier: Modifier = Modifie
 //profileInstalled which is needed for program to work correctly
 //This can be used in other files as well that needs to load in the flashcard sets
 fun PrintStoredSets(context: Context): List<String>{
-    val directory = context.filesDir //go into the directory that stores files for owlycards
+    val directory = File(context.filesDir, "flashcard_sets") //go into the directory that stores files for owlycards
     val sets = directory.listFiles() //saves list into sets
     //returns the file/set names expect profileInstalled which is needed
-    return sets?.filter { it.name != "profileInstalled" }?.map { it.name } ?: emptyList()
+    return sets?.map { it.name } ?: emptyList()
 }
 
 //removes flashcard sets where checkbox has value true/are marked
@@ -197,7 +190,9 @@ fun deleteFromList(list: MutableState<MutableList<String>>, checkboxStates: Muta
     }
 
     for(set in markedSets){ //deletes all files in the markedSets list
-        context.deleteFile((set))
+        val directory = File(context.filesDir, "flashcard_sets")
+        val file = File(directory, set)
+        file.delete()
     }
 
     //put all sets that are not marked into new list
