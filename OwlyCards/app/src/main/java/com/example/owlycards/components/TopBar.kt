@@ -1,5 +1,6 @@
-package com.example.owlycards
+package com.example.owlycards.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,7 +15,7 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SmallAppBar(title: String, showBackBtn: Boolean, navController: NavController) {
+fun TopBarSmall(title: String, showBackBtn: Boolean, navController: NavController, actions: @Composable (RowScope.() -> Unit) = {}) {
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -31,6 +32,7 @@ fun SmallAppBar(title: String, showBackBtn: Boolean, navController: NavControlle
                     )
                 }
             }
-        }
+        },
+        actions = actions
     )
 }

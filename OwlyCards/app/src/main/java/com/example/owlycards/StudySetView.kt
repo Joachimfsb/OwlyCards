@@ -15,6 +15,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,7 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,7 +42,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.owlycards.components.CardFace
 import com.example.owlycards.components.DottedPageIndicator
-import com.example.owlycards.components.FlipCard
+import com.example.owlycards.components.FlashCard
+import com.example.owlycards.components.TopBarSmall
 import com.example.owlycards.data.Flashcard
 import com.example.owlycards.data.FlashcardSet
 
@@ -48,11 +54,29 @@ fun StudySetView(flashcardSet: FlashcardSet, navController: NavController, modif
     val flashcards = flashcardSet.getFlashcards()
 
     var promptCreateFlashcard by remember { mutableStateOf(false) }
+    var editMode by remember { mutableStateOf(false) }
+
+    // Manual recompose
+    var recompose by remember { mutableIntStateOf(0) }
+    LaunchedEffect(recompose) { }
 
 
     // Content
     Scaffold(
-        topBar = { SmallAppBar(flashcardSet.name, true, navController) }
+        topBar = {
+            TopBarSmall(flashcardSet.name, true, navController) {
+                // Buttons
+                if (!editMode) {
+                    IconButton(onClick = { editMode = true }) {
+                        Icon(Icons.Filled.Edit, "Edit flashcards")
+                    }
+                } else {
+                    IconButton(onClick = { editMode = false }) {
+                        Icon(Icons.Filled.Clear, "Stop editing flashcards")
+                    }
+                }
+            }
+        }
     ) { padding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -69,18 +93,18 @@ fun StudySetView(flashcardSet: FlashcardSet, navController: NavController, modif
                     .weight(1f) // Take up remaining height
                     .fillMaxWidth()
                     .heightIn(200.dp, 400.dp)
-            ) { page ->
-                if (page < flashcards.size) {
+            ) { index ->
+                if (index < flashcards.size) {
                     // Show flashcards
-                    val flashcard = flashcards[page]
+                    val flashcard = flashcards[index]
 
                     Box(modifier = Modifier.padding(40.dp)) {
                         // Remember state
                         var state by remember { mutableStateOf(CardFace.Front) }
 
                         // FlipCard
-                        FlipCard(
-                            cardNumber = page + 1,
+                        FlashCard(
+                            cardNumber = index + 1,
                             cardFace = state,
                             onClick = {
                                 state = it.next // Flip
@@ -91,6 +115,16 @@ fun StudySetView(flashcardSet: FlashcardSet, navController: NavController, modif
                             front = {
                                 Text(flashcard.getDisplayableQuestion(), fontSize = 18.sp)
                             },
+                            actions = {
+                                if (editMode) {
+                                    IconButton(onClick = {
+                                        flashcardSet.removeFlashcard(index)
+                                        recompose++
+                                    }) {
+                                        Icon(Icons.Filled.Delete, "Delete flashcard")
+                                    }
+                                }
+                            }
                         )
 
                     }
@@ -100,19 +134,19 @@ fun StudySetView(flashcardSet: FlashcardSet, navController: NavController, modif
                         modifier = Modifier.padding(40.dp).fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        IconButton(
-                            modifier = Modifier.size(100.dp),
+                        FlashCard(
+                            showHeader = false,
                             onClick = {
                                 promptCreateFlashcard = true
                             },
-                        ) {
-                            Icon(
-                                Icons.Filled.AddCircle,
-                                "Create new flashcard",
-                                Modifier.size(64.dp)
-                            )
-                        }
-
+                            front = {
+                                Icon(
+                                    Icons.Filled.AddCircle,
+                                    "Create new flashcard",
+                                    Modifier.size(64.dp)
+                                )
+                            },
+                        )
                     }
                 }
             }
