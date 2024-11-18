@@ -1,7 +1,6 @@
 package com.example.owlycards
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,24 +20,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 
-
 @Composable
 fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
-    WelcomeViewMenu(viewModel, navController, modifier.fillMaxSize().wrapContentSize(Alignment.Center))
-}
-
-@Composable
-fun WelcomeViewMenu(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
 
     var name by remember { mutableStateOf("") }
     var nameNotFilled by remember { mutableStateOf(false)}
@@ -47,7 +38,6 @@ fun WelcomeViewMenu(viewModel: MutableState<SharedViewModel>, navController: Nav
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.DarkGray)
             .wrapContentSize(Alignment.TopCenter)
     ) {
         Column(
@@ -64,7 +54,6 @@ fun WelcomeViewMenu(viewModel: MutableState<SharedViewModel>, navController: Nav
             Text(
                 text = "Welcome to OwlyCards!", //header text
                 fontSize = 28.sp, //text size
-                color = Color.White //makes text white color
             )
 
             // Determine step
@@ -73,21 +62,18 @@ fun WelcomeViewMenu(viewModel: MutableState<SharedViewModel>, navController: Nav
                 Text(
                     text = "I am thrilled to finally meet you \uD83D\uDE04",
                     fontSize = 18.sp, //text size
-                    color = Color.White,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "My name is Owly and i run this place.", //header text
                     fontSize = 18.sp, //text size
-                    color = Color.White,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "Before you begin studying, I would love to get your name.", //header text
                     fontSize = 18.sp, //text size
-                    color = Color.White,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(30.dp))
@@ -104,7 +90,7 @@ fun WelcomeViewMenu(viewModel: MutableState<SharedViewModel>, navController: Nav
                     isError = nameNotFilled,
                     supportingText = {
                         if (nameNotFilled) {
-                            Text("Please type your name", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text("Please type your name")
                         }
                     }
                 )
@@ -128,7 +114,6 @@ fun WelcomeViewMenu(viewModel: MutableState<SharedViewModel>, navController: Nav
                 Text(
                     text = "Excellent, $name! Now you are ready to use the app. Have fun \uD83D\uDE80",
                     fontSize = 18.sp, //text size
-                    color = Color.White,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(16.dp))
