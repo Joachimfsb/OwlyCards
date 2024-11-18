@@ -47,9 +47,6 @@ fun OwlyApp(initViewModel: SharedViewModel) {
         composable("cards_sets") { //card sets screen. create and delete card sets
             FlashcardSetMenuView(viewModel, navController)
         }
-        composable("set-creation"){ //create a new flashcard set. add elements to new set
-            SetCreationView(viewModel, navController)
-        }
         composable("study-set/{flashcardSetName}") { backStackEntry ->
             // Parse args
             val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
@@ -58,7 +55,7 @@ fun OwlyApp(initViewModel: SharedViewModel) {
             if (flashcardSet == null) {
                 Text("Something went wrong, this study set does not exist!") // No!
             } else {
-                StudySetView(navController, flashcardSet) // Yes!
+                StudySetView(flashcardSet, navController) // Yes!
             }
         }
         composable("quiz") { //create quizes based on card sets

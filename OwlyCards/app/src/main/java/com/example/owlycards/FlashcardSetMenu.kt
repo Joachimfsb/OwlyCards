@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -51,6 +53,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
     val flashcardSets = viewModel.value.getFlashcardSets()
 
     var promptDeletionOfFlashcardSet by remember { mutableStateOf<String?>(null) }
+    var promptCreateFlashcardSet by remember { mutableStateOf(false) }
 
     // Content
     Scaffold(
@@ -156,7 +159,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
     ) {
         ExtendedFloatingActionButton (
             onClick = { // Goes to screen where you can create card sets
-                navController.navigate("set-creation")
+                promptCreateFlashcardSet = true
             },
             icon = { Icon(Icons.Filled.Edit, "Plus") },
             text = { Text("Create Set") },
@@ -195,6 +198,66 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                     }
                 ) {
                     Text("No, keep it")
+                }
+            }
+        )
+        return
+    } else if (promptCreateFlashcardSet) {
+
+        var name by remember { mutableStateOf("") }
+        var nameNotFilled by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            title = { Text("Create Flashcard Set") },
+            text = {
+                TextField(
+                    value = name,
+                    onValueChange = { n ->
+                        // Max length
+                        if (n.length <= 30) {
+                            name = n
+                        }
+                    },
+                    maxLines = 1,
+                    label = { Text("Name") },
+                    isError = nameNotFilled,
+                    supportingText = {
+                        if (nameNotFilled) {
+                            Text(
+                                "Please supply a name for the Flashcard Set",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                )
+            },
+            onDismissRequest = {
+                promptCreateFlashcardSet = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        // Verify
+                        if (name.isNotEmpty()) {
+                            // Create
+                            viewModel.value.addFlashcardSet(context, name)
+                            promptCreateFlashcardSet = false
+                        } else {
+                            nameNotFilled = true
+                        }
+                    }
+                ) {
+                    Text("Create")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        promptCreateFlashcardSet = false
+                    }
+                ) {
+                    Text("Cancel")
                 }
             }
         )

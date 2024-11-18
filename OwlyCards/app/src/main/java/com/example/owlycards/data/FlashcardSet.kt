@@ -12,8 +12,14 @@ class Flashcard(
     var answer = answer
         set(value) { field = sanitizeStrings(value) }
 
+    fun getDisplayableQuestion(): String { return unsanitizeStrings(question) }
+    fun getDisplayableAnswer(): String { return unsanitizeStrings(answer) }
+
     private fun sanitizeStrings(s: String): String {
-        return s.replace(";", ",").replace("\n", "")
+        return s.replace(";", ",").replace("\n", "<newline>")
+    }
+    private fun unsanitizeStrings(s: String): String {
+        return s.replace("<newline>", "\n")
     }
 
     init {

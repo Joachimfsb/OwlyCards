@@ -82,7 +82,7 @@ fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavCont
                     onValueChange = { n ->
                         // Max length
                         if (n.length <= 30) {
-                            name = n.filter { !it.isWhitespace() }
+                            name = n
                         }
                                     },
                     maxLines = 1,
@@ -119,7 +119,7 @@ fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavCont
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(onClick = {
-                    viewModel.value.config.name = name
+                    viewModel.value.config.name = name.filter { !it.isWhitespace() }
                     viewModel.value.config.setupComplete = true
                     navController.navigate("cards_sets")
                 }) {
