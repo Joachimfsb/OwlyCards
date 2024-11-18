@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.owlycards.components.TopBarSmall
 
 
 @Composable
@@ -57,7 +58,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
 
     // Content
     Scaffold(
-        topBar = { SmallAppBar("Flashcard Sets", false, navController) }
+        topBar = { TopBarSmall("Flashcard Sets", false, navController) }
     ) { padding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
