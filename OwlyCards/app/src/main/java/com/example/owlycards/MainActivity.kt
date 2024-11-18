@@ -58,8 +58,16 @@ fun OwlyApp(initViewModel: SharedViewModel) {
                 StudySetView(flashcardSet, navController) // Yes!
             }
         }
-        composable("quiz") { //create quizes based on card sets
-            //TODO: lag fil og spill
+        composable("quiz/{flashcardSetName}") { backStackEntry ->
+            // Parse args
+            val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
+            val flashcardSet = viewModel.value.getFlashcardSet(flashcardSetName)
+            // Does flashcard set exist?
+            if (flashcardSet == null) {
+                Text("Something went wrong, this quiz set does not exist!") // No!
+            } else {
+                QuizScreen(navController, flashcardSet) // Yes!
+            }
         }
         composable("match-set/{flashcardSetName}") { backStackEntry ->
             // Parse args
