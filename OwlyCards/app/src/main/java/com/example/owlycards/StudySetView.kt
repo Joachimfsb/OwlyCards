@@ -15,10 +15,13 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,19 +31,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.owlycards.components.CardFace
 import com.example.owlycards.components.DottedPageIndicator
 import com.example.owlycards.components.FlipCard
+import com.example.owlycards.data.Flashcard
 import com.example.owlycards.data.FlashcardSet
 
 
 @Composable
-fun StudySetView(navController: NavController, flashcardSet: FlashcardSet, modifier: Modifier = Modifier) {
+fun StudySetView(flashcardSet: FlashcardSet, navController: NavController, modifier: Modifier = Modifier) {
 
     val flashcards = flashcardSet.getFlashcards()
+
+    var promptCreateFlashcard by remember { mutableStateOf(false) }
+
 
     // Content
     Scaffold(
@@ -78,10 +86,10 @@ fun StudySetView(navController: NavController, flashcardSet: FlashcardSet, modif
                                 state = it.next // Flip
                             },
                             back = {
-                                Text(flashcard.answer, fontSize = 18.sp)
+                                Text(flashcard.getDisplayableAnswer(), fontSize = 18.sp)
                             },
                             front = {
-                                Text(flashcard.question, fontSize = 18.sp)
+                                Text(flashcard.getDisplayableQuestion(), fontSize = 18.sp)
                             },
                         )
 
@@ -95,7 +103,7 @@ fun StudySetView(navController: NavController, flashcardSet: FlashcardSet, modif
                         IconButton(
                             modifier = Modifier.size(100.dp),
                             onClick = {
-
+                                promptCreateFlashcard = true
                             },
                         ) {
                             Icon(
@@ -128,6 +136,84 @@ fun StudySetView(navController: NavController, flashcardSet: FlashcardSet, modif
                 )
             }
         }
+    }
+
+    if (promptCreateFlashcard) {
+
+        var question by remember { mutableStateOf("") }
+        var answer by remember { mutableStateOf("") }
+        var qNotFilled by remember { mutableStateOf(false) }
+        var aNotFilled by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            title = { Text("Create Flashcard") },
+            text = {
+                Column {
+                    // Question
+                    TextField(
+                        value = question,
+                        onValueChange = { q -> question = q },
+                        label = { Text("Question") },
+                        isError = qNotFilled,
+                        supportingText = {
+                            if (qNotFilled) {
+                                Text(
+                                    "Please supply a question",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    )
+                    // Answer
+                    TextField(
+                        value = answer,
+                        onValueChange = { a -> answer = a },
+                        label = { Text("Answer") },
+                        isError = aNotFilled,
+                        supportingText = {
+                            if (aNotFilled) {
+                                Text(
+                                    "Please supply the answer",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    )
+                }
+            },
+            onDismissRequest = {
+                promptCreateFlashcard = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        // Verify
+                        qNotFilled = question.isEmpty()
+                        aNotFilled = answer.isEmpty()
+
+                        if (!qNotFilled && !aNotFilled) {
+                            // Create
+                            flashcardSet.addFlashcard(Flashcard(question, answer))
+                            promptCreateFlashcard = false
+                        }
+                    }
+                ) {
+                    Text("Create")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        promptCreateFlashcard = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+        return
     }
 }
 
