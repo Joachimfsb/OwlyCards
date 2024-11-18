@@ -244,6 +244,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                             // Create
                             viewModel.value.addFlashcardSet(context, name)
                             promptCreateFlashcardSet = false
+                            navController.navigate("study-set/$name")
                         } else {
                             nameNotFilled = true
                         }
