@@ -55,7 +55,7 @@ fun OwlyApp(initViewModel: SharedViewModel) {
             if (flashcardSet == null) {
                 Text("Something went wrong, this study set does not exist!") // No!
             } else {
-                StudySetView(flashcardSet, navController) // Yes!
+                StudySetView(viewModel.value.owly, flashcardSet, navController) // Yes!
             }
         }
         composable("quiz") { //create quizes based on card sets
