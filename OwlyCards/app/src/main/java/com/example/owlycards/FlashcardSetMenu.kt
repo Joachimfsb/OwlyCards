@@ -399,6 +399,9 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                     TextButton(
                         onClick = {
                             promptCreateFlashcardSet = false
+                            navController.navigate("study-set/$name")
+                        } else {
+                            nameNotFilled = true
                         }
                     ) {
                         Text("Cancel")
