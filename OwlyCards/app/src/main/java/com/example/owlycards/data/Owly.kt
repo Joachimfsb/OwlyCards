@@ -4,6 +4,7 @@ class Owly(name: String) {
 
     fun greet(): String { return greetings.shuffled().first() }
     fun motivate(): String { return motivation.shuffled().first() }
+    fun remind(): String { return reminders.shuffled().first() }
 
     private val greetings = listOf(
         "Hoo-hoo! Good day, my wise friend, $name! Ready to soar into some knowledge? \uD83E\uDD89",
@@ -29,5 +30,18 @@ class Owly(name: String) {
         "Nothing can stop you $name!",
         "Wowzers! You are impressing me $name! \uD83D\uDE0D",
         "You're a star $name! \uD83C\uDF1F"
+    )
+    private val reminders = listOf(
+        "Time to spread your wings! Let's learn something today $name!",
+        "Remember to study today $name! Remember: knowledge = Power \uD83E\uDD11",
+        "Remember to set aside some time for studying today $name! \uD83D\uDCDA",
+        "Hoo's got a test coming up? Make sure to review your cards! \uD83E\uDD89",
+        "Don't let the day fly by! Take a moment to study! \uD83D\uDE04",
+        "Remember, every little bit helps! Let's tackle that study material!",
+        "It's study o'clock! Time to memorize! \uD83E\uDDE0",
+        "Hoo's got goals? Come learn some more! \uD83C\uDF1F",
+        "Just a gentle nudge: Your brain will thank you for studying today \uD83D\uDE04",
+        "Don't forget what you learned last time! Consistency is key! ⏰",
+        "Hoo's ready to learn? Dive into your study materials and soar to success! \uD83E\uDD47"
     )
 }
