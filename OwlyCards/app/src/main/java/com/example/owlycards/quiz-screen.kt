@@ -57,7 +57,7 @@ fun QuizScreenPage(navController: NavController, flashcardSet: FlashcardSet, mod
                 .imePadding(), // adjusts when keyboard is activated
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
-        )  {
+        ) {
             // flashcard Surface with question/answer
             Surface(
                 // rounded corners and elevation for shadow effect
@@ -106,51 +106,56 @@ fun QuizScreenPage(navController: NavController, flashcardSet: FlashcardSet, mod
                 fontSize = 16.sp
             )
 
-            // input box for user answer
-            Spacer(modifier = Modifier.height(16.dp))
-            TextField(
-                value = answer,
-                onValueChange = { answer = it },
-                placeholder = { Text("Type your answer here") },
-                modifier = Modifier.fillMaxWidth(0.9f)
-            )
+            // hide input and buttons if the quiz is complete
+            if (feedback != "Quiz Complete!") {
+                // input box for user answer
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = answer,
+                    onValueChange = { answer = it },
+                    placeholder = { Text("Type your answer here") },
+                    modifier = Modifier.fillMaxWidth(0.9f)
+                )
 
-            // reveal and submit buttons
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                // reveal anwser
-                Button(
-                    onClick = { flip = true }, // make flip true to go on the answer side
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(96, 67, 168)),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.padding(end = 8.dp)
+                // reveal and submit buttons
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Reveal", color = Color.White)
-                }
-                // submit input
-                Button(
-                    onClick = {
-                        if (answer.equals(cardSet[currentQuestionIndex].answer, ignoreCase = true)) {
-                            feedback = "Correct!"
-                            if (currentQuestionIndex + 1 < cardSet.size) {
-                                currentQuestionIndex++
-                                flip = false // reset flip for next question
-                            } else {
-                                feedback = "Quiz Complete!"
-                            }
-                        } else {
-                            feedback = "Incorrect, try again."
+                    // show reveal button only if the user answers incorrectly
+                    if (feedback == "Incorrect, try again.") {
+                        Button(
+                            onClick = { flip = true },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(96, 67, 168)),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("Reveal", color = Color.White)
                         }
-                        answer = ""
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(96, 67, 168)),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.padding(start = 8.dp)
-                ) {
-                    Text("Submit", color = Color.White)
+                    }
+                    // submit input
+                    Button(
+                        onClick = {
+                            if (answer.equals(cardSet[currentQuestionIndex].answer, ignoreCase = true)) {
+                                feedback = "Correct!"
+                                if (currentQuestionIndex + 1 < cardSet.size) {
+                                    currentQuestionIndex++
+                                    flip = false // reset flip for next question
+                                } else {
+                                    feedback = "Quiz Complete!"
+                                }
+                            } else {
+                                feedback = "Incorrect, try again."
+                            }
+                            answer = ""
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(96, 67, 168)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        Text("Submit", color = Color.White)
+                    }
                 }
             }
 
