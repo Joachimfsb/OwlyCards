@@ -50,6 +50,17 @@ fun OwlyApp(initViewModel: SharedViewModel) {
         composable("set-creation"){ //create a new flashcard set. add elements to new set
             SetCreationView(viewModel, navController)
         }
+        composable("export/{flashcardSetName}") { backStackEntry ->
+            // Parse args
+            val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
+            val flashcardSet = viewModel.value.getFlashcardSet(flashcardSetName)
+            // Does flashcard set exist?
+            if (flashcardSet == null) {
+                Text("Something went wrong, this study set does not exist!") // No!
+            } else {
+                ExportView(navController, flashcardSet) // Yes!
+            }
+        }
         composable("study-set/{flashcardSetName}") { backStackEntry ->
             // Parse args
             val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""

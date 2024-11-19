@@ -1,6 +1,7 @@
 package com.example.owlycards
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,7 +62,6 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
 
     var promptDeletionOfFlashcardSet by remember { mutableStateOf<String?>(null) }
 
-    var test = ""
 
 
     // Content
@@ -70,19 +70,12 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                SmallAppBar("Flashcard Sets", false, navController)
+                TopBarSmall("Flashcard Sets", false, navController)
 
-                // Row to place button at the right
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth() // Fill the width
-                        .padding(top = 16.dp), // Adjust the padding to move the button further down
-                    horizontalArrangement = Arrangement.End // Align the button to the right
-                ) {
                     IconButton(onClick = {/*TODO*/}){
                         Icon(Icons.Filled.Edit, "Edit flashcards")
                     }
-                }
+
             }
         }
     ) { padding ->
@@ -157,20 +150,20 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                 }
                             }
 
-                            Row (
+                            Row(
                                 horizontalArrangement = Arrangement.End,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
-                                test = DropdownMenuExample()
-                                IconButton(
-                                    onClick = {
+                                // Choice between exporting set or deleting it
+                                DropdownMenuExample { selectedOption ->
+                                    if (selectedOption == "Export") {
+                                        navController.navigate("export/${flashcardSet.second.name}")
+                                    }
+                                    else if (selectedOption == "Delete") {
                                         promptDeletionOfFlashcardSet = flashcardSet.second.name
-                                    },
-                                ) {
-                                    Icon(Icons.Filled.Delete, "Delete flashcard set")
+                                    }
                                 }
                             }
-                        }
                     }
                     if (index == flashcardSets.size - 1) {
                         Spacer(Modifier.height(85.dp))
@@ -229,46 +222,50 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                 }
             }
         )
-        return
     }
+}
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownMenuExample(): String {
-    var isExpanded by remember { mutableStateOf(false) } //the dropdown menu. if true whole menu
-    var selectedOption by remember { mutableStateOf("...") } //choice starts at °C
-    val options = listOf("Export", "Delete") //the options in the dropdown menu
+fun DropdownMenuExample(onOptionSelected: (String) -> Unit) {
+    var isExpanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("...") } // Default display value
+    val options = listOf("Export", "Delete")
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
-        onExpandedChange = {
-            isExpanded = !isExpanded //changes dropdown so you can close and open dropdown menu
-        }
+        onExpandedChange = { isExpanded = !isExpanded },
+        modifier = Modifier.border(0.dp, Color.Transparent)
     ) {
         OutlinedTextField(
-            value = selectedOption, //starting value of dropdown menu
+            value = selectedOption,
             onValueChange = { },
-            readOnly = true, //user cant change values
-            //label = { Text("Choose") }, //text displayed at the top of dropdown menu
-            modifier = Modifier.menuAnchor().width(50.dp), //the style of dropdown
+            readOnly = true,
+            modifier = Modifier.menuAnchor().width(50.dp),
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent, // No border on focus
+                unfocusedIndicatorColor = Color.Transparent, // No border when idle
+                disabledIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent
+            )
         )
         DropdownMenu(
-            expanded = isExpanded, //if true, menu is expanded, if false menu is not expanded
-            onDismissRequest = { isExpanded = false }, //can remove the menu again
+            expanded = isExpanded,
+            onDismissRequest = { isExpanded = false },
             modifier = Modifier.width(150.dp)
         ) {
-            options.forEach { option -> //every list element is included in the dropdown menu
+            options.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(option) },
                     onClick = {
-                        selectedOption = option //selectedOption gets the value of the selected
-                        //element
+                        selectedOption = option
                         isExpanded = false
+                        onOptionSelected(option) // Call the callback with the selected option
                     }
                 )
             }
         }
     }
-    return selectedOption //returns selected units
 }

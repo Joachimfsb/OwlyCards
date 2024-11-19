@@ -1,5 +1,6 @@
 package com.example.owlycards
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,5 +33,29 @@ fun SmallAppBar(title: String, showBackBtn: Boolean, navController: NavControlle
                 }
             }
         }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBarSmall(title: String, showBackBtn: Boolean, navController: NavController, actions: @Composable (RowScope.() -> Unit) = {}) {
+
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary,
+        ),
+        title = { Text(title) },
+        navigationIcon = {
+            if (showBackBtn) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        },
+        actions = actions
     )
 }
