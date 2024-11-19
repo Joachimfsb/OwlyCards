@@ -253,7 +253,7 @@ fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet, modif
 
                 Text(
                     text = message,
-                    color = if (isMatching == true) Color.Green else Color.Red,
+                    color = if (isMatching == true) Color(0xFF2E7D32) else Color.Red,
                     fontSize = 18.sp,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
