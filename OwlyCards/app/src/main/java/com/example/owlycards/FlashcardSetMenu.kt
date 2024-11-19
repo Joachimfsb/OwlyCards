@@ -37,6 +37,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -47,9 +48,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.owlycards.components.DropdownMenuPrimary
+import com.example.owlycards.components.TopBarSmall
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +65,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
     val flashcardSets = viewModel.value.getFlashcardSets()
 
     var promptDeletionOfFlashcardSet by remember { mutableStateOf<String?>(null) }
-
+    var promptCreateFlashcardSet by remember { mutableStateOf(false) }
 
 
     // Content
@@ -72,9 +76,9 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
             ) {
                 TopBarSmall("Flashcard Sets", false, navController)
 
-                    IconButton(onClick = {navController.navigate("import")}){
-                        Icon(Icons.Filled.Edit, "Edit flashcards")
-                    }
+                IconButton(onClick = { navController.navigate("import") }) {
+                    Icon(Icons.Filled.Edit, "Edit flashcards")
+                }
 
             }
         }
@@ -97,15 +101,17 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                             .padding(start = 10.dp, end = 10.dp, top = 12.dp, bottom = 2.dp)
                     ) {
                         Row(
-                           verticalAlignment = Alignment.CenterVertically,
-                           modifier = Modifier.fillMaxWidth().padding(10.dp)
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth().padding(10.dp)
                         ) {
                             Column { // Column containing both the name of the card set and game mode buttons
-                                Text( // The name of the saved flashcard set
+                                Text(
+                                    // The name of the saved flashcard set
                                     text = flashcardSet.second.name,
                                     fontSize = 20.sp,
                                 )
-                                Text( // The name of the saved flashcard set
+                                Text(
+                                    // The name of the saved flashcard set
                                     text = "Number of flashcards: ${flashcardSet.second.getFlashcards().size}",
                                     fontSize = 14.sp,
                                     color = Color.Gray,
@@ -132,20 +138,32 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                             navController.navigate("match-set/${flashcardSet.second.name}")
                                         },
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                                        border = BorderStroke(2.dp, ButtonDefaults.buttonColors().containerColor)
+                                        border = BorderStroke(
+                                            2.dp,
+                                            ButtonDefaults.buttonColors().containerColor
+                                        )
                                     ) {
-                                        Text("MATCH", color = ButtonDefaults.buttonColors().containerColor)
+                                        Text(
+                                            "MATCH",
+                                            color = ButtonDefaults.buttonColors().containerColor
+                                        )
                                     }
 
                                     // Quiz button
                                     Button(
                                         onClick = {
-                                            //navController.navigate("quiz-set/$setName")
+                                            navController.navigate("quiz/${flashcardSet.second.name}")
                                         },
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                                        border = BorderStroke(2.dp, ButtonDefaults.buttonColors().containerColor)
+                                        border = BorderStroke(
+                                            2.dp,
+                                            ButtonDefaults.buttonColors().containerColor
+                                        )
                                     ) {
-                                        Text("QUIZ", color = ButtonDefaults.buttonColors().containerColor)
+                                        Text(
+                                            "QUIZ",
+                                            color = ButtonDefaults.buttonColors().containerColor
+                                        )
                                     }
                                 }
                             }
@@ -155,117 +173,135 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
                                 // Choice between exporting set or deleting it
-                                DropdownMenuExample { selectedOption ->
+                                DropdownMenuPrimary { selectedOption ->
                                     if (selectedOption == "Export") {
                                         navController.navigate("export/${flashcardSet.second.name}")
-                                    }
-                                    else if (selectedOption == "Delete") {
+                                    } else if (selectedOption == "Delete") {
                                         promptDeletionOfFlashcardSet = flashcardSet.second.name
                                     }
                                 }
                             }
-                    }
-                    if (index == flashcardSets.size - 1) {
-                        Spacer(Modifier.height(85.dp))
+                        }
+                        if (index == flashcardSets.size - 1) {
+                            Spacer(Modifier.height(85.dp))
+                        }
                     }
                 }
             }
         }
-    }
 
 
-    // Floating "Create Set" button
-    Box(
-        modifier = Modifier.fillMaxWidth().fillMaxHeight()
-    ) {
-        ExtendedFloatingActionButton (
-            onClick = { // Goes to screen where you can create card sets
-                navController.navigate("set-creation")
-            },
-            icon = { Icon(Icons.Filled.Edit, "Plus") },
-            text = { Text("Create Set") },
-            contentColor = Color.White,
-            containerColor = Color(96, 67, 168),
-
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 70.dp)
-        )
-    }
-
-
-    if (promptDeletionOfFlashcardSet != null) {
-        AlertDialog(
-            icon = { Icon(Icons.Filled.Warning, "Warning") },
-            title = { Text("Confirm deletion") },
-            text = {
-                Text("Are you sure you want to delete the flashcard set '$promptDeletionOfFlashcardSet'?")
-            },
-            onDismissRequest = {
-                promptDeletionOfFlashcardSet = null
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.value.removeFlashcardSet(context, promptDeletionOfFlashcardSet ?: "")
-                        promptDeletionOfFlashcardSet = null
-                    }
-                ) {
-                    Text("Yes, delete it")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        promptDeletionOfFlashcardSet = null
-                    }
-                ) {
-                    Text("No, keep it")
-                }
-            }
-        )
-    }
-}
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DropdownMenuExample(onOptionSelected: (String) -> Unit) {
-    var isExpanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("...") } // Default display value
-    val options = listOf("Export", "Delete")
-
-    ExposedDropdownMenuBox(
-        expanded = isExpanded,
-        onExpandedChange = { isExpanded = !isExpanded },
-        modifier = Modifier.border(0.dp, Color.Transparent)
-    ) {
-        OutlinedTextField(
-            value = selectedOption,
-            onValueChange = { },
-            readOnly = true,
-            modifier = Modifier.menuAnchor().width(50.dp),
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent, // No border on focus
-                unfocusedIndicatorColor = Color.Transparent, // No border when idle
-                disabledIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent
-            )
-        )
-        DropdownMenu(
-            expanded = isExpanded,
-            onDismissRequest = { isExpanded = false },
-            modifier = Modifier.width(150.dp)
+        // Floating "Create Set" button
+        Box(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight()
         ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option) },
-                    onClick = {
-                        selectedOption = option
-                        isExpanded = false
-                        onOptionSelected(option) // Call the callback with the selected option
+            ExtendedFloatingActionButton(
+                onClick = { // Goes to screen where you can create card sets
+                    promptCreateFlashcardSet = true
+                },
+                icon = { Icon(Icons.Filled.Edit, "Plus") },
+                text = { Text("Create Set") },
+                contentColor = Color.White,
+                containerColor = Color(96, 67, 168),
+
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 70.dp)
+            )
+        }
+
+
+        if (promptDeletionOfFlashcardSet != null) {
+            AlertDialog(
+                icon = { Icon(Icons.Filled.Warning, "Warning") },
+                title = { Text("Confirm deletion") },
+                text = {
+                    Text("Are you sure you want to delete the flashcard set '$promptDeletionOfFlashcardSet'?")
+                },
+                onDismissRequest = {
+                    promptDeletionOfFlashcardSet = null
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.value.removeFlashcardSet(
+                                context,
+                                promptDeletionOfFlashcardSet ?: ""
+                            )
+                            promptDeletionOfFlashcardSet = null
+                        }
+                    ) {
+                        Text("Yes, delete it")
                     }
-                )
-            }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            promptDeletionOfFlashcardSet = null
+                        }
+                    ) {
+                        Text("No, keep it")
+                    }
+                }
+            )
+        } else if (promptCreateFlashcardSet) {
+
+            var name by remember { mutableStateOf("") }
+            var nameNotFilled by remember { mutableStateOf(false) }
+
+            AlertDialog(
+                title = { Text("Create Flashcard Set") },
+                text = {
+                    TextField(
+                        value = name,
+                        onValueChange = { n ->
+                            // Max length
+                            if (n.length <= 30) {
+                                name = n
+                            }
+                        },
+                        maxLines = 1,
+                        label = { Text("Name") },
+                        isError = nameNotFilled,
+                        supportingText = {
+                            if (nameNotFilled) {
+                                Text(
+                                    "Please supply a name for the Flashcard Set",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    )
+                },
+                onDismissRequest = {
+                    promptCreateFlashcardSet = false
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            // Verify
+                            if (name.isNotEmpty()) {
+                                // Create
+                                viewModel.value.addFlashcardSet(context, name)
+                                promptCreateFlashcardSet = false
+                            } else {
+                                nameNotFilled = true
+                            }
+                        }
+                    ) {
+                        Text("Create")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            promptCreateFlashcardSet = false
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }
+

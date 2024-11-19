@@ -12,8 +12,14 @@ class Flashcard(
     var answer = answer
         set(value) { field = sanitizeStrings(value) }
 
+    fun getDisplayableQuestion(): String { return unsanitizeStrings(question) }
+    fun getDisplayableAnswer(): String { return unsanitizeStrings(answer) }
+
     private fun sanitizeStrings(s: String): String {
-        return s.replace(";", ",").replace("\n", "")
+        return s.replace(";", ",").replace("\n", "<newline>")
+    }
+    private fun unsanitizeStrings(s: String): String {
+        return s.replace("<newline>", "\n")
     }
 
     init {
@@ -31,9 +37,19 @@ class FlashcardSet
         get() = _name
         set(value) { _name = value.replace(";", ","); saveState() }
 
-    fun getFlashcards(): MutableList<Flashcard> { return _flashcards }
+    fun getFlashcards(): MutableList<Flashcard> { return _flashcards.toMutableList() } // Returns copy
     fun setFlashcards(flashcardList: MutableList<Flashcard>) { _flashcards = flashcardList; saveState() }
     fun addFlashcard(f: Flashcard) { _flashcards.add(f); saveState() }
+    fun removeFlashcard(index: Int): Boolean {
+        // List is not empty and index is within range
+        if (_flashcards.size > 0 && index < _flashcards.size && index >= 0) {
+            _flashcards.removeAt(index)
+            saveState()
+            return true
+        } else {
+            return false
+        }
+    }
 
     // Constructor (Loads data (if exists) from internal storage)
     init {

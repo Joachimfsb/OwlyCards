@@ -14,6 +14,7 @@ class SharedViewModel(context: Context) : ViewModel() {
     fun getFlashcardSets(): MutableMap<String, FlashcardSet> { return _flashcardSets }
     fun getFlashcardSet(name: String): FlashcardSet? { return this._flashcardSets[name] }
     fun addFlashcardSet(name: String, set: FlashcardSet) { this._flashcardSets[name] = set }
+    fun addFlashcardSet(context: Context, name: String) { this._flashcardSets[name] = FlashcardSet(context, name) }
     fun removeFlashcardSet(context: Context, name: String): Boolean {
         // Remove file
         val directory = File(context.filesDir, "flashcard_sets")
