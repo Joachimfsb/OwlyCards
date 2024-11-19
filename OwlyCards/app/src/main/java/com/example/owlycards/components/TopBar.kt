@@ -13,6 +13,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarSmall(title: String, showBackBtn: Boolean, navController: NavController, actions: @Composable (RowScope.() -> Unit) = {}) {

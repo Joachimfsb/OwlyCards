@@ -15,12 +15,12 @@ import com.example.owlycards.components.TopBarSmall
 import com.example.owlycards.data.FlashcardSet
 
 @Composable
-fun QuizScreen(navController: NavController, flashcardSet: FlashcardSet, modifier: Modifier = Modifier) {
-    QuizScreenPage(navController, flashcardSet, modifier)
+fun QuizScreen(navController: NavController, flashcardSet: FlashcardSet) {
+    QuizScreenPage(navController, flashcardSet)
 }
 
 @Composable
-fun QuizScreenPage(navController: NavController, flashcardSet: FlashcardSet, modifier: Modifier = Modifier) {
+fun QuizScreenPage(navController: NavController, flashcardSet: FlashcardSet) {
     val cardSet = remember { flashcardSet.getFlashcards().shuffled() } // shuffle flashcards
 
     // if there are no cards in a set, give message and back button
@@ -82,7 +82,11 @@ fun QuizScreenPage(navController: NavController, flashcardSet: FlashcardSet, mod
                     Spacer(modifier = Modifier.height(4.dp))
                     // display actual question/answer of the current question
                     Text(
-                        text = if (!flip) cardSet[currentQuestionIndex].question else cardSet[currentQuestionIndex].answer,
+                        text = if (!flip) {
+                            cardSet[currentQuestionIndex].getDisplayableQuestion()
+                        } else {
+                            cardSet[currentQuestionIndex].getDisplayableAnswer()
+                        },
                         color = Color.Black,
                         fontSize = 20.sp,
                         lineHeight = 30.sp
