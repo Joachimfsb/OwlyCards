@@ -1,5 +1,9 @@
 package com.example.owlycards
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,8 +34,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +52,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.owlycards.components.DropdownMenuArrow
 import com.example.owlycards.components.TopBarSmall
+import com.example.owlycards.data.FlashcardSet
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 
 
 @Composable
@@ -55,8 +65,14 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
 
     val flashcardSets = viewModel.value.getFlashcardSets()
 
-    var promptDeletionOfFlashcardSet by remember { mutableStateOf<String?>(null) }
+    // Prompts
+    var promptDeletionOfFlashcardSet by remember { mutableStateOf<Pair<String, FlashcardSet>?>(null) }
     var promptCreateFlashcardSet by remember { mutableStateOf(false) }
+    var promptErrorDialog by remember { mutableStateOf<String?>(null) }
+
+    // Manual recompose
+    var recompose by remember { mutableIntStateOf(0) }
+    LaunchedEffect(recompose) { }
 
 
     // Content
@@ -65,8 +81,48 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                // Prep import option
+                val importFile = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.GetContent(),
+                    onResult = { uri ->
+                        uri?.let {
+                            val inputStream = context.contentResolver.openInputStream(uri)
+                            val reader = BufferedReader(InputStreamReader(inputStream))
+                            val rawData = reader.use { it.readText() }
+
+                            // Create new flashcard
+                            var success = false
+                            val tempFilename = "temporary"
+
+                            val flashcardSet = viewModel.value.addFlashcardSet(context, tempFilename)
+                            if (flashcardSet != null) {
+                                if (flashcardSet.import(rawData)) {
+
+                                    // Use name of flashcard for filename
+                                    if (viewModel.value.renameFlashcardSet(context, tempFilename, "${flashcardSet.name}.owly")) {
+                                        success = true
+                                        recompose++
+                                    } else {
+                                        promptErrorDialog = "A flashcard with the same name already exists."
+                                    }
+                                } else {
+                                    promptErrorDialog = "Could not import. File is in an incorrect format."
+                                }
+                            } else {
+                                promptErrorDialog = "Could not import. Something went wrong."
+                            }
+
+                            if (!success) {
+                                viewModel.value.removeFlashcardSet(context, tempFilename)
+                            }
+                        }
+                    }
+                )
+
                 TopBarSmall("Flashcard Sets", false, navController) {
-                    IconButton(onClick = { navController.navigate("import") }) {
+                    IconButton(onClick = {
+                        importFile.launch("application/octet-stream") // Import
+                    }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ExitToApp,
                             "Import file",
@@ -96,7 +152,9 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth().padding(10.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
                         ) {
                             Column { // Column containing both the name of the card set and game mode buttons
                                 Text(
@@ -119,7 +177,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                     Button(
                                         modifier = Modifier.padding(end = 6.dp),
                                         onClick = {
-                                            navController.navigate("study-set/${flashcardSet.second.name}")
+                                            navController.navigate("study-set/${flashcardSet.first}")
                                         },
                                     ) {
                                         Text("STUDY")
@@ -129,7 +187,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                     Button(
                                         modifier = Modifier.padding(end = 6.dp),
                                         onClick = {
-                                            navController.navigate("match-set/${flashcardSet.second.name}")
+                                            navController.navigate("match-set/${flashcardSet.first}")
                                         },
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                                         border = BorderStroke(
@@ -146,7 +204,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                     // Quiz button
                                     Button(
                                         onClick = {
-                                            navController.navigate("quiz/${flashcardSet.second.name}")
+                                            navController.navigate("quiz/${flashcardSet.first}")
                                         },
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                                         border = BorderStroke(
@@ -166,14 +224,54 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                 horizontalArrangement = Arrangement.End,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
+                                // Prep download option
+                                val fileSaveLauncher = rememberLauncherForActivityResult(
+                                    contract = CreateDocument("application/octet-stream"),
+                                    onResult = { uri ->
+                                        uri?.let {
+                                            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                                                OutputStreamWriter(outputStream).use { writer ->
+                                                    writer.write(flashcardSet.second.export())
+                                                }
+                                            }
+                                        }
+                                    }
+                                )
+
+
                                 // Choice between exporting set or deleting it
                                 DropdownMenuArrow (
-                                    options = listOf("Export", "Delete"),
+                                    options = listOf("Share", "Export", "Delete"),
                                     onOptionSelected = {
-                                        if (it == "Export") {
-                                            navController.navigate("export/${flashcardSet.second.name}")
+                                        if (it == "Share") {
+                                            // Get file uri
+                                            val fileUri = flashcardSet.second.getFileUri()
+
+                                            // Open share screen
+                                            if (fileUri != null) {
+                                                try {
+                                                    val shareIntent = Intent().apply {
+                                                        action = Intent.ACTION_SEND
+                                                        putExtra(
+                                                            Intent.EXTRA_STREAM,
+                                                            fileUri
+                                                            )
+                                                        type = "application/octet-stream"
+                                                    }
+                                                    context.startActivity(
+                                                        Intent.createChooser(
+                                                            shareIntent,
+                                                            "Share flashcard set '${flashcardSet.second.name}'"
+                                                        )
+                                                    )
+                                                } finally {
+                                                }
+                                            }
+                                        } else if (it == "Export") {
+                                            // Download
+                                            fileSaveLauncher.launch(flashcardSet.first)
                                         } else if (it == "Delete") {
-                                            promptDeletionOfFlashcardSet = flashcardSet.second.name
+                                            promptDeletionOfFlashcardSet = flashcardSet
                                         }
                                     },
                                 )
@@ -190,7 +288,9 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
 
         // Floating "Create Set" button
         Box(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
         ) {
             ExtendedFloatingActionButton(
                 onClick = { // Goes to screen where you can create card sets
@@ -201,7 +301,9 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                 contentColor = Color.White,
                 containerColor = Color(96, 67, 168),
 
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 70.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 70.dp)
             )
         }
 
@@ -211,7 +313,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                 icon = { Icon(Icons.Filled.Warning, "Warning") },
                 title = { Text("Confirm deletion") },
                 text = {
-                    Text("Are you sure you want to delete the flashcard set '$promptDeletionOfFlashcardSet'?")
+                    Text("Are you sure you want to delete the flashcard set '${promptDeletionOfFlashcardSet!!.second.name}'?")
                 },
                 onDismissRequest = {
                     promptDeletionOfFlashcardSet = null
@@ -221,7 +323,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                         onClick = {
                             viewModel.value.removeFlashcardSet(
                                 context,
-                                promptDeletionOfFlashcardSet ?: ""
+                                promptDeletionOfFlashcardSet!!.first
                             )
                             promptDeletionOfFlashcardSet = null
                         }
@@ -277,8 +379,13 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                         onClick = {
                             // Verify
                             if (name.isNotEmpty()) {
-                                // Create
-                                viewModel.value.addFlashcardSet(context, name)
+                                // Create flashcard
+                                val flashcardSet = viewModel.value.addFlashcardSet(context, "$name.owly")
+                                if (flashcardSet != null) {
+                                    flashcardSet.name = name
+                                } else {
+                                    promptErrorDialog = "Could not create flashcard set: invalid or existing name"
+                                }
                                 promptCreateFlashcardSet = false
                             } else {
                                 nameNotFilled = true
@@ -297,6 +404,26 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                         Text("Cancel")
                     }
                 }
+            )
+        } else if (promptErrorDialog != null) {
+            AlertDialog(
+                icon = { Icon(Icons.Filled.Warning, "Warning") },
+                title = { Text("Something went wrong!") },
+                text = {
+                    Text(promptErrorDialog!!)
+                },
+                onDismissRequest = {
+                    promptErrorDialog = null
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            promptErrorDialog = null
+                        }
+                    ) {
+                        Text("Okay")
+                    }
+                },
             )
         }
     }

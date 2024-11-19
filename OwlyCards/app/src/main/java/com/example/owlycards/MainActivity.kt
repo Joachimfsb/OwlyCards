@@ -20,6 +20,8 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Start app
         enableEdgeToEdge()
         setContent {
             OwlyCardsTheme {
@@ -51,24 +53,10 @@ fun OwlyApp(initViewModel: SharedViewModel) {
         composable("cards_sets") { //card sets screen. create and delete card sets
             FlashcardSetMenuView(viewModel, navController)
         }
-        composable("import"){ //create a new flashcard set. add elements to new set
-            ImportView(navController)
-        }
-        composable("export/{flashcardSetName}") { backStackEntry ->
+        composable("study-set/{flashcardSetFilename}") { backStackEntry ->
             // Parse args
-            val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
-            val flashcardSet = viewModel.value.getFlashcardSet(flashcardSetName)
-            // Does flashcard set exist?
-            if (flashcardSet == null) {
-                Text("Something went wrong, this study set does not exist!") // No!
-            } else {
-                ExportView(navController, flashcardSet) // Yes!
-            }
-        }
-        composable("study-set/{flashcardSetName}") { backStackEntry ->
-            // Parse args
-            val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
-            val flashcardSet = viewModel.value.getFlashcardSet(flashcardSetName)
+            val filename = backStackEntry.arguments?.getString("flashcardSetFilename") ?: ""
+            val flashcardSet = viewModel.value.getFlashcardSet(filename)
             // Does flashcard set exist?
             if (flashcardSet == null) {
                 Text("Something went wrong, this study set does not exist!") // No!
@@ -76,10 +64,10 @@ fun OwlyApp(initViewModel: SharedViewModel) {
                 StudySetView(flashcardSet, navController) // Yes!
             }
         }
-        composable("quiz/{flashcardSetName}") { backStackEntry ->
+        composable("quiz/{flashcardSetFilename}") { backStackEntry ->
             // Parse args
-            val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
-            val flashcardSet = viewModel.value.getFlashcardSet(flashcardSetName)
+            val filename = backStackEntry.arguments?.getString("flashcardSetFilename") ?: ""
+            val flashcardSet = viewModel.value.getFlashcardSet(filename)
             // Does flashcard set exist?
             if (flashcardSet == null) {
                 Text("Something went wrong, this quiz set does not exist!") // No!
@@ -87,10 +75,10 @@ fun OwlyApp(initViewModel: SharedViewModel) {
                 QuizScreen(navController, flashcardSet) // Yes!
             }
         }
-        composable("match-set/{flashcardSetName}") { backStackEntry ->
+        composable("match-set/{flashcardSetFilename}") { backStackEntry ->
             // Parse args
-            val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
-            val flashcardSet = viewModel.value.getFlashcardSet(flashcardSetName)
+            val filename = backStackEntry.arguments?.getString("flashcardSetFilename") ?: ""
+            val flashcardSet = viewModel.value.getFlashcardSet(filename)
             // Does flashcard set exist?
             if (flashcardSet == null) {
                 Text("Something went wrong, this study set does not exist!") // No!

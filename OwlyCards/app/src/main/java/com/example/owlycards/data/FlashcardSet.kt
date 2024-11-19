@@ -1,44 +1,23 @@
 package com.example.owlycards.data
 
 import android.content.Context
+import android.net.Uri
+import androidx.core.content.FileProvider
 import java.io.File
 
-class Flashcard(
-    question: String,
-    answer: String
-) {
-    var question = question
-        set(value) { field = sanitizeStrings(value) }
-    var answer = answer
-        set(value) { field = sanitizeStrings(value) }
-
-    fun getDisplayableQuestion(): String { return unsanitizeStrings(question) }
-    fun getDisplayableAnswer(): String { return unsanitizeStrings(answer) }
-
-    private fun sanitizeStrings(s: String): String {
-        return s.replace(";", ",").replace("\n", "<newline>")
-    }
-    private fun unsanitizeStrings(s: String): String {
-        return s.replace("<newline>", "\n")
-    }
-
-    init {
-        this.question = question
-        this.answer = answer
-    }
-}
 
 class FlashcardSet
-    (private val context: Context, name: String) {
+    (private val context: Context, val filename: String) {
     private var _name = ""
     private var _flashcards = mutableListOf<Flashcard>()
 
+    // Public attributes with getters and setters
+    // Attribute: name
     var name: String
         get() = _name
         set(value) { _name = value.replace(";", ","); saveState() }
-
+    // Attribute: flashcards
     fun getFlashcards(): MutableList<Flashcard> { return _flashcards.toMutableList() } // Returns copy
-    fun setFlashcards(flashcardList: MutableList<Flashcard>) { _flashcards = flashcardList; saveState() }
     fun addFlashcard(f: Flashcard) { _flashcards.add(f); saveState() }
     fun removeFlashcard(index: Int): Boolean {
         // List is not empty and index is within range
@@ -53,47 +32,94 @@ class FlashcardSet
 
     // Constructor (Loads data (if exists) from internal storage)
     init {
-        this._name = name
-
-        // Locate directory that stores flashcard-sets
-        val directory = File(context.filesDir, "flashcard_sets")
-        // Check if the dir exists
-        if (directory.exists()) {
+        val directory = getStorageDirectory()
+        if (directory != null) {
             // Check if flashcard set exists
-            val file = File(directory, name)
+            val file = File(directory, filename)
             if (file.exists()) {
-                try {
-                    val rawData = file.readText() // File content
-                    val lines = rawData.split("\n") // Split
-
-                    // Set data
-                    lines.forEach {
-                        val line = it.split(";")
-                        this._flashcards.add(Flashcard(line[0], line[1]))
-                    }
-                } catch (_: Exception) { }
+                import(file.readText())
+            } else {
+                saveState() // Flashcard set does not exist, mean a new one is being created
             }
         }
     }
 
-    // Save state (data) to internal storage
-    private fun saveState() {
-        // Prep data
-        val lines = mutableListOf<String>()
+    fun getFileUri(): Uri? {
+        // Get storage dir
+        val directory = getStorageDirectory()
+        if (directory != null) {
+            // Get file
+            val file = File(directory, filename)
+            if (file.exists() && file.canRead()) {
+                // Get file uri
+                return try {
+                    FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.provider",
+                        file
+                        )
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        }
+        return null
+    }
+
+    fun import(rawData: String): Boolean {
+        try {
+            val lines = rawData.split("\n") // Split
+
+            // Set data
+            val name = lines[0]
+            val flashcards = mutableListOf<Flashcard>()
+            lines.drop(1).forEach {
+                val line = it.split(";")
+                flashcards.add(Flashcard(line[0], line[1]))
+            }
+            this._name = name
+            this._flashcards = flashcards
+            saveState()
+            return true
+        } catch (_: Exception) {
+            return false
+        }
+    }
+
+    fun export(): String {
+        val lines = mutableListOf(name)
         this._flashcards.forEach {
             lines.add(it.question + ";" + it.answer)
         }
-        val data = lines.joinToString("\n")
+        return lines.joinToString("\n")
+    }
 
-        // Locate directory that stores flashcard-sets
-        val directory = File(context.filesDir, "flashcard_sets")
-        // Create dir if it does not exist
-        if (directory.exists() || directory.mkdir()) {
+    //////// PRIVATE METHODS ////////
+
+    // Save state (data) to internal storage
+    private fun saveState() {
+        // Prep data
+        val data = export()
+
+        val directory = getStorageDirectory()
+        if (directory != null) {
             // Create file
-            val file = File(directory, name)
+            val file = File(directory, filename)
             if (file.canWrite() || file.createNewFile()) {
                 file.writeText(data)
             }
         }
     }
+
+    private fun getStorageDirectory(): File? {
+        // Locate directory that stores flashcard-sets
+        val directory = File(context.filesDir, "flashcard_sets")
+        // Create dir if it does not exist
+        return if (directory.exists() || directory.mkdir()) {
+            directory
+        } else {
+            null
+        }
+    }
+
 }

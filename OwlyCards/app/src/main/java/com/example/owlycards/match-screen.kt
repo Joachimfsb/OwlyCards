@@ -1,12 +1,10 @@
 package com.example.owlycards
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,9 +20,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,10 +43,10 @@ import com.example.owlycards.data.FlashcardSet
 import kotlinx.coroutines.launch
 
 @Composable
-fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet, modifier: Modifier = Modifier) {
+fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet) {
     val flashcards = flashcardSet.getFlashcards()
 
-    val shuffeledQuestions = remember(flashcards) { // Randomize the order of the answers in a new list
+    val shuffledQuestions = remember(flashcards) { // Randomize the order of the answers in a new list
         flashcards.shuffled() // Shuffle all the questions in the card list
     }
 
@@ -148,7 +144,7 @@ fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet, modif
                                 Text( // Display the question of the current Question-card
                                     fontSize = 20.sp,
                                     textAlign = TextAlign.Center,
-                                    text = flashcards[index].question
+                                    text = flashcards[index].getDisplayableQuestion()
                                 )
                             }
                         }
@@ -166,7 +162,7 @@ fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet, modif
                     fontSize = 30.sp
                 ) // Header text
 
-                val answerPagerStatus = rememberPagerState { shuffeledQuestions.size }
+                val answerPagerStatus = rememberPagerState { shuffledQuestions.size }
 
                 // Pager to display all answers as a page
                 HorizontalPager(
@@ -194,7 +190,7 @@ fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet, modif
                                 Text( // Display the question of the current Question-card
                                     fontSize = 20.sp,
                                     textAlign = TextAlign.Center,
-                                    text = shuffeledQuestions[index].answer
+                                    text = shuffledQuestions[index].getDisplayableAnswer()
                                 )
                             }
                         }
@@ -216,7 +212,7 @@ fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet, modif
                         val answerIndex = answerPagerStatus.currentPage
 
                         // Check if the current answer matches the current questions answer
-                        if (flashcards[questionIndex].answer == shuffeledQuestions[answerIndex].answer) {
+                        if (flashcards[questionIndex].answer == shuffledQuestions[answerIndex].answer) {
                             isMatching = true // They match
                             correctAnswers += 1 // Increase the number of correct answers by 1
 

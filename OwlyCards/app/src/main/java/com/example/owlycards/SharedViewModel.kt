@@ -12,21 +12,36 @@ class SharedViewModel(context: Context) : ViewModel() {
     private val _flashcardSets = mutableMapOf<String, FlashcardSet>()
 
     fun getFlashcardSets(): MutableMap<String, FlashcardSet> { return _flashcardSets }
-    fun getFlashcardSet(name: String): FlashcardSet? { return this._flashcardSets[name] }
-    fun addFlashcardSet(name: String, set: FlashcardSet) { this._flashcardSets[name] = set }
-    fun addFlashcardSet(context: Context, name: String) { this._flashcardSets[name] = FlashcardSet(context, name) }
-    fun removeFlashcardSet(context: Context, name: String): Boolean {
+    fun getFlashcardSet(filename: String): FlashcardSet? { return this._flashcardSets[filename] }
+    fun addFlashcardSet(context: Context, filename: String): FlashcardSet? {
+        val n = filename.replace("\n", "")
+        if (this._flashcardSets[n] != null) return null // If the same name already exists
+        // Does not exist
+        this._flashcardSets[n] = FlashcardSet(context, n)
+        return this._flashcardSets[n]
+    }
+    fun removeFlashcardSet(context: Context, filename: String): Boolean {
         // Remove file
         val directory = File(context.filesDir, "flashcard_sets")
         if (directory.exists()) {
-            val file = File(directory, name)
+            val file = File(directory, filename)
             if (file.exists() && !file.delete()) {
                 return false
             }
         }
 
-        this._flashcardSets.remove(name)
+        this._flashcardSets.remove(filename)
         return true
+    }
+    fun renameFlashcardSet(context: Context, oldFilename: String, newFilename: String): Boolean {
+        val nFilename = newFilename.replace("\n", "")
+        if (this._flashcardSets[oldFilename] == null) return false // If the old name does not exists
+        if (this._flashcardSets[nFilename] != null) return false // If the new name already exists
+        // All good
+        val data = this._flashcardSets[oldFilename]!!.export()
+        if (!removeFlashcardSet(context, oldFilename)) return false
+        val new = addFlashcardSet(context, nFilename) ?: return false
+        return new.import(data)
     }
 
     // Constructor
