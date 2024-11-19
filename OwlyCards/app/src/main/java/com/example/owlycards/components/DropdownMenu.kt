@@ -1,12 +1,12 @@
 package com.example.owlycards.components
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,27 +19,25 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownMenuPrimary(onOptionSelected: (String) -> Unit) {
+fun DropdownMenuArrow(onOptionSelected: (String) -> Unit, options: List<String>) {
+    if (options.isEmpty()) return
+
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("...") } // Default display value
-    val options = listOf("Export", "Delete")
+    var selectedOption by remember { mutableStateOf(options[0]) } // Default display value
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
         onExpandedChange = { isExpanded = !isExpanded },
-        modifier = Modifier.border(0.dp, Color.Transparent)
     ) {
         OutlinedTextField(
-            value = selectedOption,
+            value = "",
             onValueChange = { },
             readOnly = true,
             modifier = Modifier.menuAnchor().width(50.dp),
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent, // No border on focus
-                unfocusedIndicatorColor = Color.Transparent, // No border when idle
-                disabledIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedBorderColor = Color.Transparent,
+                focusedBorderColor = Color.Transparent
             )
         )
         androidx.compose.material3.DropdownMenu(

@@ -1,7 +1,6 @@
 package com.example.owlycards
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,32 +11,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -47,16 +38,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.owlycards.components.DropdownMenuPrimary
+import com.example.owlycards.components.DropdownMenuArrow
 import com.example.owlycards.components.TopBarSmall
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController: NavController) {
 
@@ -74,12 +65,15 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TopBarSmall("Flashcard Sets", false, navController)
-
-                IconButton(onClick = { navController.navigate("import") }) {
-                    Icon(Icons.Filled.Edit, "Edit flashcards")
+                TopBarSmall("Flashcard Sets", false, navController) {
+                    IconButton(onClick = { navController.navigate("import") }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ExitToApp,
+                            "Import file",
+                            Modifier.graphicsLayer { rotationZ = 90f }
+                        )
+                    }
                 }
-
             }
         }
     ) { padding ->
@@ -173,13 +167,16 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
                                 // Choice between exporting set or deleting it
-                                DropdownMenuPrimary { selectedOption ->
-                                    if (selectedOption == "Export") {
-                                        navController.navigate("export/${flashcardSet.second.name}")
-                                    } else if (selectedOption == "Delete") {
-                                        promptDeletionOfFlashcardSet = flashcardSet.second.name
-                                    }
-                                }
+                                DropdownMenuArrow (
+                                    options = listOf("Export", "Delete"),
+                                    onOptionSelected = {
+                                        if (it == "Export") {
+                                            navController.navigate("export/${flashcardSet.second.name}")
+                                        } else if (it == "Delete") {
+                                            promptDeletionOfFlashcardSet = flashcardSet.second.name
+                                        }
+                                    },
+                                )
                             }
                         }
                         if (index == flashcardSets.size - 1) {
