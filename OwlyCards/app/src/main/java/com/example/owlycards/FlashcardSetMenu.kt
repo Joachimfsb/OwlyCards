@@ -121,7 +121,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                     // Quiz button
                                     Button(
                                         onClick = {
-                                            //navController.navigate("quiz-set/$setName")
+                                            navController.navigate("quiz/${flashcardSet.second.name}")
                                         },
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                                         border = BorderStroke(2.dp, ButtonDefaults.buttonColors().containerColor)
