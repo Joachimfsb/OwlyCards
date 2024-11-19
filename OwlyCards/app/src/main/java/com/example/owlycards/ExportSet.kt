@@ -94,7 +94,7 @@ fun saveToDownloadsUsingMediaStore(context: Context, content: String, fileName: 
         // For Android 10 (API 29) and above, use MediaStore to save to Downloads
         val contentResolver: ContentResolver = context.contentResolver
         val contentValues = android.content.ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName) // Name file gets in downloads
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName + ".owly") // Name file gets in downloads
             put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/")  // Save to the Downloads folder
         }
 

@@ -72,7 +72,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
             ) {
                 TopBarSmall("Flashcard Sets", false, navController)
 
-                    IconButton(onClick = {/*TODO*/}){
+                    IconButton(onClick = {navController.navigate("import")}){
                         Icon(Icons.Filled.Edit, "Edit flashcards")
                     }
 
