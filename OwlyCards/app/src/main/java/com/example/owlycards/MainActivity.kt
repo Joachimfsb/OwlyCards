@@ -1,9 +1,11 @@
 package com.example.owlycards
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.owlycards.ui.theme.OwlyCardsTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -29,6 +32,7 @@ class MainActivity : ComponentActivity() {
 
 
 // Main app setup (run on creation)
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun OwlyApp(initViewModel: SharedViewModel) {
     val viewModel = remember { mutableStateOf(initViewModel) }
@@ -46,6 +50,20 @@ fun OwlyApp(initViewModel: SharedViewModel) {
         }
         composable("cards_sets") { //card sets screen. create and delete card sets
             FlashcardSetMenuView(viewModel, navController)
+        }
+        composable("import"){ //create a new flashcard set. add elements to new set
+            ImportView(navController)
+        }
+        composable("export/{flashcardSetName}") { backStackEntry ->
+            // Parse args
+            val flashcardSetName = backStackEntry.arguments?.getString("flashcardSetName") ?: ""
+            val flashcardSet = viewModel.value.getFlashcardSet(flashcardSetName)
+            // Does flashcard set exist?
+            if (flashcardSet == null) {
+                Text("Something went wrong, this study set does not exist!") // No!
+            } else {
+                ExportView(navController, flashcardSet) // Yes!
+            }
         }
         composable("study-set/{flashcardSetName}") { backStackEntry ->
             // Parse args
