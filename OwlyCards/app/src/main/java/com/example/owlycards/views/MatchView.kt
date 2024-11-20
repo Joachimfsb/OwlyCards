@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.owlycards.R
 import com.example.owlycards.components.DottedPageIndicator
+import com.example.owlycards.components.OwlyComponent
 import com.example.owlycards.components.TopBarSmall
 import com.example.owlycards.data.FlashcardSet
 import kotlinx.coroutines.launch
@@ -47,8 +48,8 @@ import kotlinx.coroutines.launch
 fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet) {
     val flashcards = flashcardSet.getFlashcards()
 
-    val shuffledQuestions = remember(flashcards) { // Randomize the order of the answers in a new list
-        flashcards.shuffled() // Shuffle all the questions in the card list
+    var shuffledQuestions = remember(flashcards) { // Randomize the order of the answers in a new list
+        flashcards.shuffled().toMutableList() // All questions shuffled in a mutable list
     }
 
     var isMatching by remember { mutableStateOf<Boolean?>(null) } // Does the answer match the question?
@@ -74,22 +75,8 @@ fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet) {
             } else {
                 "G'hoo'd job winning the Matching game! You managed to complete the game with $correctAnswers correct and $wrongAnswers wrong matches, which leaves room for improvement!"
             }
-
-            // Image of Owly:
-            Image(
-                painter = painterResource(id = R.drawable.owly), //image of Owly
-                contentDescription = "Owly", //description of picture
-                contentScale = ContentScale.Fit,
-            )
-
-            // The message from Owly
-            Text(
-                text = owlyMessage,
-                color = Color.Gray,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Display Owly, with a message
+            OwlyComponent(owlyMessage)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -218,17 +205,21 @@ fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet) {
                             correctAnswers += 1 // Increase the number of correct answers by 1
 
                             flashcards.removeAt(questionIndex) // Remove the current question
+                            shuffledQuestions.removeAt(answerIndex) // Remove the current answer
 
                             // If there are more questions, update the index/page.
                             if (flashcards.isNotEmpty()) {
                                 val newIndex =
                                     if (questionIndex >= flashcards.size) flashcards.size - 1 else questionIndex
                                 coroutineScope.launch {
-                                    questionPagerStatus.scrollToPage(newIndex) // Goto the new index/page
+                                    // Goto the new index/page in both pagers:
+                                    questionPagerStatus.scrollToPage(newIndex)
+                                    answerPagerStatus.scrollToPage(newIndex)
                                 }
                             } else { // If there aren't more question, the user won
                                 won = true
                             }
+
                         } else { // The answer doesn't match the question
                             isMatching = false
                             wrongAnswers += 1 // Increase the number of wrong answers by 1
