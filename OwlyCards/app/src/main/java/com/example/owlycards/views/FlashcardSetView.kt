@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.owlycards.data.SharedViewModel
 import com.example.owlycards.components.DropdownMenuArrow
+import com.example.owlycards.components.OwlyComponent
 import com.example.owlycards.components.TopBarSmall
 import com.example.owlycards.data.FlashcardSet
 import java.io.BufferedReader
@@ -65,6 +66,9 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
     val context = LocalContext.current
 
     val flashcardSets = viewModel.value.getFlashcardSets()
+
+    // Owly
+    val owlyMessage by remember { mutableStateOf(viewModel.value.owly.sayItsEmpty()) }
 
     // Prompts
     var promptDeletionOfFlashcardSet by remember { mutableStateOf<Pair<String, FlashcardSet>?>(null) }
@@ -136,150 +140,158 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
     ) { padding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(padding).fillMaxSize()
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-            ) {
-                itemsIndexed(flashcardSets.toList()) { index, flashcardSet ->
-                    Surface( // Each set gets its own row which fills the width of screen
-                        shape = RoundedCornerShape(16.dp),
-                        color = Color.White,
-                        shadowElevation = 4.dp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 10.dp, end = 10.dp, top = 12.dp, bottom = 2.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+            if (flashcardSets.isEmpty()) {
+                // There are no flashcards
+
+                // Show Owly
+                Spacer(Modifier.height(30.dp))
+                OwlyComponent(owlyMessage)
+
+            } else {
+                // There are flashcards!
+                LazyColumn {
+                    itemsIndexed(flashcardSets.toList()) { index, flashcardSet ->
+                        Surface( // Each set gets its own row which fills the width of screen
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.White,
+                            shadowElevation = 4.dp,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(10.dp)
+                                .padding(start = 10.dp, end = 10.dp, top = 12.dp, bottom = 2.dp)
                         ) {
-                            Column { // Column containing both the name of the card set and game mode buttons
-                                Text(
-                                    // The name of the saved flashcard set
-                                    text = flashcardSet.second.name,
-                                    fontSize = 20.sp,
-                                )
-                                Text(
-                                    // The name of the saved flashcard set
-                                    text = "Number of flashcards: ${flashcardSet.second.getFlashcards().size}",
-                                    fontSize = 14.sp,
-                                    color = Color.Gray,
-                                )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
+                                Column { // Column containing both the name of the card set and game mode buttons
+                                    Text(
+                                        // The name of the saved flashcard set
+                                        text = flashcardSet.second.name,
+                                        fontSize = 20.sp,
+                                    )
+                                    Text(
+                                        // The name of the saved flashcard set
+                                        text = "Number of flashcards: ${flashcardSet.second.getFlashcards().size}",
+                                        fontSize = 14.sp,
+                                        color = Color.Gray,
+                                    )
 
-                                // Buttons to start the different game modes:
-                                Row(
-                                    horizontalArrangement = Arrangement.Start,
-                                ) {
-                                    // Study button
-                                    Button(
-                                        modifier = Modifier.padding(end = 6.dp),
-                                        onClick = {
-                                            navController.navigate("study-set/${flashcardSet.first}")
-                                        },
+                                    // Buttons to start the different game modes:
+                                    Row(
+                                        horizontalArrangement = Arrangement.Start,
                                     ) {
-                                        Text("STUDY")
-                                    }
+                                        // Study button
+                                        Button(
+                                            modifier = Modifier.padding(end = 6.dp),
+                                            onClick = {
+                                                navController.navigate("study-set/${flashcardSet.first}")
+                                            },
+                                        ) {
+                                            Text("STUDY")
+                                        }
 
-                                    // Match button
-                                    Button(
-                                        modifier = Modifier.padding(end = 6.dp),
-                                        onClick = {
-                                            navController.navigate("match-set/${flashcardSet.first}")
-                                        },
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                                        border = BorderStroke(
-                                            2.dp,
-                                            ButtonDefaults.buttonColors().containerColor
-                                        )
-                                    ) {
-                                        Text(
-                                            "MATCH",
-                                            color = ButtonDefaults.buttonColors().containerColor
-                                        )
-                                    }
+                                        // Match button
+                                        Button(
+                                            modifier = Modifier.padding(end = 6.dp),
+                                            onClick = {
+                                                navController.navigate("match-set/${flashcardSet.first}")
+                                            },
+                                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                                            border = BorderStroke(
+                                                2.dp,
+                                                ButtonDefaults.buttonColors().containerColor
+                                            )
+                                        ) {
+                                            Text(
+                                                "MATCH",
+                                                color = ButtonDefaults.buttonColors().containerColor
+                                            )
+                                        }
 
-                                    // Quiz button
-                                    Button(
-                                        onClick = {
-                                            navController.navigate("quiz/${flashcardSet.first}")
-                                        },
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                                        border = BorderStroke(
-                                            2.dp,
-                                            ButtonDefaults.buttonColors().containerColor
-                                        )
-                                    ) {
-                                        Text(
-                                            "QUIZ",
-                                            color = ButtonDefaults.buttonColors().containerColor
-                                        )
+                                        // Quiz button
+                                        Button(
+                                            onClick = {
+                                                navController.navigate("quiz/${flashcardSet.first}")
+                                            },
+                                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                                            border = BorderStroke(
+                                                2.dp,
+                                                ButtonDefaults.buttonColors().containerColor
+                                            )
+                                        ) {
+                                            Text(
+                                                "QUIZ",
+                                                color = ButtonDefaults.buttonColors().containerColor
+                                            )
+                                        }
                                     }
                                 }
-                            }
 
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                // Prep download option
-                                val fileSaveLauncher = rememberLauncherForActivityResult(
-                                    contract = CreateDocument("application/octet-stream"),
-                                    onResult = { uri ->
-                                        uri?.let {
-                                            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                                                OutputStreamWriter(outputStream).use { writer ->
-                                                    writer.write(flashcardSet.second.export())
-                                                }
-                                            }
-                                        }
-                                    }
-                                )
-
-
-                                // Choice between exporting set or deleting it
-                                DropdownMenuArrow (
-                                    options = listOf("Share", "Export", "Delete"),
-                                    onOptionSelected = {
-                                        if (it == "Share") {
-                                            // Get file uri
-                                            val fileUri = flashcardSet.second.getFileUri()
-
-                                            // Open share screen
-                                            if (fileUri != null) {
-                                                try {
-                                                    val shareIntent = Intent().apply {
-                                                        action = Intent.ACTION_SEND
-                                                        putExtra(
-                                                            Intent.EXTRA_STREAM,
-                                                            fileUri
-                                                            )
-                                                        type = "application/octet-stream"
+                                Row(
+                                    horizontalArrangement = Arrangement.End,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    // Prep download option
+                                    val fileSaveLauncher = rememberLauncherForActivityResult(
+                                        contract = CreateDocument("application/octet-stream"),
+                                        onResult = { uri ->
+                                            uri?.let {
+                                                context.contentResolver.openOutputStream(uri)
+                                                    ?.use { outputStream ->
+                                                        OutputStreamWriter(outputStream).use { writer ->
+                                                            writer.write(flashcardSet.second.export())
+                                                        }
                                                     }
-                                                    context.startActivity(
-                                                        Intent.createChooser(
-                                                            shareIntent,
-                                                            "Share flashcard set '${flashcardSet.second.name}'"
-                                                        )
-                                                    )
-                                                } finally {
-                                                }
                                             }
-                                        } else if (it == "Export") {
-                                            // Download
-                                            fileSaveLauncher.launch(flashcardSet.first)
-                                        } else if (it == "Delete") {
-                                            promptDeletionOfFlashcardSet = flashcardSet
                                         }
-                                    },
-                                )
+                                    )
+
+
+                                    // Choice between exporting set or deleting it
+                                    DropdownMenuArrow(
+                                        options = listOf("Share", "Export", "Delete"),
+                                        onOptionSelected = {
+                                            if (it == "Share") {
+                                                // Get file uri
+                                                val fileUri = flashcardSet.second.getFileUri()
+
+                                                // Open share screen
+                                                if (fileUri != null) {
+                                                    try {
+                                                        val shareIntent = Intent().apply {
+                                                            action = Intent.ACTION_SEND
+                                                            putExtra(
+                                                                Intent.EXTRA_STREAM,
+                                                                fileUri
+                                                            )
+                                                            type = "application/octet-stream"
+                                                        }
+                                                        context.startActivity(
+                                                            Intent.createChooser(
+                                                                shareIntent,
+                                                                "Share flashcard set '${flashcardSet.second.name}'"
+                                                            )
+                                                        )
+                                                    } finally {
+                                                    }
+                                                }
+                                            } else if (it == "Export") {
+                                                // Download
+                                                fileSaveLauncher.launch(flashcardSet.first)
+                                            } else if (it == "Delete") {
+                                                promptDeletionOfFlashcardSet = flashcardSet
+                                            }
+                                        },
+                                    )
+                                }
                             }
-                        }
-                        if (index == flashcardSets.size - 1) {
-                            Spacer(Modifier.height(85.dp))
+                            if (index == flashcardSets.size - 1) {
+                                Spacer(Modifier.height(85.dp))
+                            }
                         }
                     }
                 }
@@ -379,13 +391,13 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                     TextButton(
                         onClick = {
                             // Verify
-                            val strippedName = name.filter { !it.isWhitespace() }
-                            if (strippedName.isNotEmpty()) {
+                            val trimmedName = name.trim()
+                            if (trimmedName.isNotEmpty()) {
                                 // Create flashcard
-                                val flashcardSet = viewModel.value.addFlashcardSet(context, "$strippedName.owly")
+                                val flashcardSet = viewModel.value.addFlashcardSet(context, "$trimmedName.owly")
                                 if (flashcardSet != null) {
-                                    flashcardSet.name = strippedName
-                                    navController.navigate("study-set/$strippedName.owly")
+                                    flashcardSet.name = trimmedName
+                                    navController.navigate("study-set/$trimmedName.owly")
                                 } else {
                                     promptErrorDialog = "Could not create flashcard set: invalid or existing name"
                                 }

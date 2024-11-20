@@ -68,7 +68,7 @@ fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavCont
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "My name is Owly and i run this place.", //header text
+                    text = "My name is Owly, and I run this place.", //header text
                     fontSize = 18.sp, //text size
                     textAlign = TextAlign.Center
                 )
@@ -84,7 +84,7 @@ fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavCont
                     onValueChange = { n ->
                         // Max length
                         if (n.length <= 30) {
-                            name = n
+                            name = n.replace("\n", "") // No newlines
                         }
                                     },
                     maxLines = 1,
@@ -99,14 +99,16 @@ fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavCont
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
+                    val strippedName = name.trim()
                     // Verify that name is filled out
-                    if (name.isEmpty()) {
+                    if (strippedName.isEmpty()) {
                         // Show error
                         nameNotFilled = true
                     } else {
-                    // Go to step 2
-                    step = 2
-                        }
+                        name = strippedName
+                        // Go to step 2
+                        step = 2
+                    }
                 }) {
                     Text("Continue")
                 }
@@ -114,14 +116,14 @@ fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavCont
             } else if (step == 2) {
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
-                    text = "Excellent, $name! Now you are ready to use the app. Have fun \uD83D\uDE80",
+                    text = "Excellent, $name! You are now ready to use the app. Have fun \uD83D\uDE80",
                     fontSize = 18.sp, //text size
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(onClick = {
-                    viewModel.value.config.name = name.filter { !it.isWhitespace() }
+                    viewModel.value.config.name = name.trim()
                     viewModel.value.config.setupComplete = true
                     navController.navigate("cards_sets")
                 }) {

@@ -4,6 +4,7 @@ class Owly(name: String) {
 
     fun greet(): String { return greetings.shuffled().first() }
     fun motivate(): String { return motivation.shuffled().first() }
+    fun sayItsEmpty(): String { return itsEmpty.shuffled().first() }
     fun remind(): String { return reminders.shuffled().first() }
 
     private val greetings = listOf(
@@ -30,6 +31,17 @@ class Owly(name: String) {
         "Nothing can stop you $name!",
         "Wowzers! You are impressing me $name! \uD83D\uDE0D",
         "You're a star $name! \uD83C\uDF1F"
+    )
+    private val itsEmpty = listOf(
+        "Looks like there's nothing to hoot about here! How about we create some flashcard sets? ✏\uFE0F",
+        "Such empty! \uD83D\uDC15 Perhaps it's time to fill this page with some exciting flashcard sets? \uD83D\uDE04",
+        "Whooooops! It seems this page is a little to quiet. Let's make some flashcard sets, $name! \uD83D\uDCDA",
+        "An empty page? Let's change that with some hoot-worthy flashcard sets! ✏\uFE0F",
+        "This page is waiting for some owl-some flashcard sets from you, $name! \uD83E\uDD89",
+        "Time to spread our wings and fill this page with some flashcard-sets, $name! \uD83D\uDCDA",
+        "Whooo wants to help me fill this page with fun? \uD83D\uDE0D",
+        "Ready to get creative, $name? Let's make some flashcard sets!",
+        "Ready to learn something, $name? Let's make some flashcard sets! \uD83E\uDDE0"
     )
     // Keep static (don't use name attribute) to allow worker threads to use these strings
     private val reminders = listOf(
