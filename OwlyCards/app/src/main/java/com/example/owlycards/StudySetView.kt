@@ -1,6 +1,5 @@
 package com.example.owlycards
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,8 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,16 +40,40 @@ import androidx.navigation.NavController
 import com.example.owlycards.components.CardFace
 import com.example.owlycards.components.DottedPageIndicator
 import com.example.owlycards.components.FlashCard
+import com.example.owlycards.components.OwlyComponent
+import com.example.owlycards.data.Owly
 import com.example.owlycards.components.TopBarSmall
 import com.example.owlycards.data.Flashcard
 import com.example.owlycards.data.FlashcardSet
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
-fun StudySetView(flashcardSet: FlashcardSet, navController: NavController, modifier: Modifier = Modifier) {
+fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavController, modifier: Modifier = Modifier) {
 
+    // Flashcards
     val flashcards = flashcardSet.getFlashcards()
 
+    // Owly
+    var owlyMessage by remember { mutableStateOf(owly.greet()) }
+    var seconds by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        while(true) {
+            delay(1.seconds)
+            seconds++
+
+            // Every minute
+            if (seconds > 30) {
+                seconds = 0
+                owlyMessage = owly.motivate()
+            }
+        }
+    }
+
+
+    // Prompts
     var promptCreateFlashcard by remember { mutableStateOf(false) }
     var editMode by remember { mutableStateOf(false) }
 
@@ -154,7 +175,7 @@ fun StudySetView(flashcardSet: FlashcardSet, navController: NavController, modif
 
             Column(
                 modifier = Modifier
-                    .height(150.dp)
+                    .height(180.dp)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -163,11 +184,7 @@ fun StudySetView(flashcardSet: FlashcardSet, navController: NavController, modif
 
                 Spacer(modifier.height(30.dp))
 
-                Image(
-                    painter = painterResource(id = R.drawable.owly), //image of Owly
-                    contentDescription = "Owly", //description of picture
-                    contentScale = ContentScale.Fit,
-                )
+                OwlyComponent(owlyMessage)
             }
         }
     }

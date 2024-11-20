@@ -2,15 +2,19 @@ package com.example.owlycards
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.example.owlycards.data.Owly
 import com.example.owlycards.data.Config
 import com.example.owlycards.data.FlashcardSet
 import java.io.File
 
 class SharedViewModel(context: Context) : ViewModel() {
 
+    // Data
     val config = Config(context)
     private val _flashcardSets = mutableMapOf<String, FlashcardSet>()
+    val owly = Owly(config.name)
 
+    // Flashcard manipulators
     fun getFlashcardSets(): MutableMap<String, FlashcardSet> { return _flashcardSets }
     fun getFlashcardSet(filename: String): FlashcardSet? { return this._flashcardSets[filename] }
     fun addFlashcardSet(context: Context, filename: String): FlashcardSet? {
@@ -44,9 +48,8 @@ class SharedViewModel(context: Context) : ViewModel() {
         return new.import(data)
     }
 
-    // Constructor
+    // Constructor (fetches flashcards from internal storage)
     init {
-        // Create flashcard sets from internal storage
         val directory = File(context.filesDir, "flashcard_sets")
 
         // Loop through each file in directory and add their data to data structure
