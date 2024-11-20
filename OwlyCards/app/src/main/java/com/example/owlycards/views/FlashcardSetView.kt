@@ -35,7 +35,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -61,14 +60,14 @@ import java.io.OutputStreamWriter
 
 
 @Composable
-fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController: NavController) {
+fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavController) {
 
     val context = LocalContext.current
 
-    val flashcardSets = viewModel.value.getFlashcardSets()
+    val flashcardSets = viewModel.getFlashcardSets()
 
     // Owly
-    val owlyMessage by remember { mutableStateOf(viewModel.value.owly.sayItsEmpty()) }
+    val owlyMessage by remember { mutableStateOf(viewModel.owly.sayItsEmpty()) }
 
     // Prompts
     var promptDeletionOfFlashcardSet by remember { mutableStateOf<Pair<String, FlashcardSet>?>(null) }
@@ -99,12 +98,12 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                             var success = false
                             val tempFilename = "temporary"
 
-                            val flashcardSet = viewModel.value.addFlashcardSet(context, tempFilename)
+                            val flashcardSet = viewModel.addFlashcardSet(context, tempFilename)
                             if (flashcardSet != null) {
                                 if (flashcardSet.import(rawData)) {
 
                                     // Use name of flashcard for filename
-                                    if (viewModel.value.renameFlashcardSet(context, tempFilename, "${flashcardSet.name}.owly")) {
+                                    if (viewModel.renameFlashcardSet(context, tempFilename, "${flashcardSet.name}.owly")) {
                                         success = true
                                         recompose++
                                     } else {
@@ -118,7 +117,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                             }
 
                             if (!success) {
-                                viewModel.value.removeFlashcardSet(context, tempFilename)
+                                viewModel.removeFlashcardSet(context, tempFilename)
                             }
                         }
                     }
@@ -334,7 +333,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            viewModel.value.removeFlashcardSet(
+                            viewModel.removeFlashcardSet(
                                 context,
                                 promptDeletionOfFlashcardSet!!.first
                             )
@@ -394,7 +393,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                             val trimmedName = name.trim()
                             if (trimmedName.isNotEmpty()) {
                                 // Create flashcard
-                                val flashcardSet = viewModel.value.addFlashcardSet(context, "$trimmedName.owly")
+                                val flashcardSet = viewModel.addFlashcardSet(context, "$trimmedName.owly")
                                 if (flashcardSet != null) {
                                     flashcardSet.name = trimmedName
                                     navController.navigate("study-set/$trimmedName.owly")

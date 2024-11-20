@@ -12,7 +12,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +30,7 @@ import com.example.owlycards.data.SharedViewModel
 
 
 @Composable
-fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavController, modifier: Modifier = Modifier) {
+fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifier: Modifier = Modifier) {
 
     var name by remember { mutableStateOf("") }
     var nameNotFilled by remember { mutableStateOf(false)}
@@ -123,8 +122,8 @@ fun WelcomeView(viewModel: MutableState<SharedViewModel>, navController: NavCont
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(onClick = {
-                    viewModel.value.config.name = name.trim()
-                    viewModel.value.config.setupComplete = true
+                    viewModel.config.name = name.trim()
+                    viewModel.config.setupComplete = true
                     navController.navigate("cards_sets")
                 }) {
                     Text("Begin")
