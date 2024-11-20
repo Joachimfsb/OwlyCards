@@ -98,12 +98,15 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                             var success = false
                             val tempFilename = "temporary"
 
-                            val flashcardSet = viewModel.addFlashcardSet(context, tempFilename)
+                            val flashcardSet = viewModel.addFlashcardSet(tempFilename)
                             if (flashcardSet != null) {
                                 if (flashcardSet.import(rawData)) {
 
                                     // Use name of flashcard for filename
-                                    if (viewModel.renameFlashcardSet(context, tempFilename, "${flashcardSet.name}.owly")) {
+                                    if (viewModel.renameFlashcardSet(
+                                            tempFilename,
+                                            "${flashcardSet.name}.owly"
+                                        )) {
                                         success = true
                                         recompose++
                                     } else {
@@ -117,7 +120,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                             }
 
                             if (!success) {
-                                viewModel.removeFlashcardSet(context, tempFilename)
+                                viewModel.removeFlashcardSet(tempFilename)
                             }
                         }
                     }
@@ -334,7 +337,6 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                     TextButton(
                         onClick = {
                             viewModel.removeFlashcardSet(
-                                context,
                                 promptDeletionOfFlashcardSet!!.first
                             )
                             promptDeletionOfFlashcardSet = null
@@ -393,7 +395,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                             val trimmedName = name.trim()
                             if (trimmedName.isNotEmpty()) {
                                 // Create flashcard
-                                val flashcardSet = viewModel.addFlashcardSet(context, "$trimmedName.owly")
+                                val flashcardSet = viewModel.addFlashcardSet("$trimmedName.owly")
                                 if (flashcardSet != null) {
                                     flashcardSet.name = trimmedName
                                     navController.navigate("study-set/$trimmedName.owly")
