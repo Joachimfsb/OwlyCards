@@ -21,7 +21,14 @@ import com.example.owlycards.data.Owly
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
+/**
+ * Notification manager manages the notifications sent by Owlycards
+ */
 class NotificationMgr(private val context: Context) {
+
+    /**
+     * Create reminders creates the reminders. Can be run on startup as old reminders are overwritten
+     */
     fun createReminders() {
 
         // Check if the user has allowed notifications
@@ -31,24 +38,34 @@ class NotificationMgr(private val context: Context) {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             // Yes? Create reminder
-            createNotificationChannel()
-            createReoccurringNotification<UploadWorker>(7) // Repeat every 7 days
+            createNotificationChannel() // Create notification channel
+            // Create reoccurring reminder
+            createReoccurringWork<NotificationWorker>(7) // Repeat every 7 days
         }
     }
 
+    /**
+     * Helper that creates a notification channel.
+     */
     private fun createNotificationChannel() {
-        // Send notification
+        // Check minimum version S
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Setup channel
             val channel = NotificationChannel("owly_channel_1", "Owly notification channel", NotificationManager.IMPORTANCE_DEFAULT).apply {
                 description = "Reminders from Owly to come practice."
             }
 
+            // Register channel
             val notificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
 
-    private inline fun <reified T: Worker> createReoccurringNotification(repeatIntervalDays: Long) {
+    /**
+     * Creates a reoccurring worker with the given interval. Note, no delay after creation.
+     */
+    private inline fun <reified T: Worker> createReoccurringWork(repeatIntervalDays: Long) {
+        // Setup
         val uploadWorkRequest: PeriodicWorkRequest = PeriodicWorkRequestBuilder<T>(repeatIntervalDays, TimeUnit.DAYS)
             .setConstraints(
                 Constraints.Builder()
@@ -57,15 +74,22 @@ class NotificationMgr(private val context: Context) {
             )
             .build()
 
+        // Register
         WorkManager.getInstance(context).enqueue(uploadWorkRequest)
     }
 }
 
-class UploadWorker(private val context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+/**
+ * Worker class
+ */
+class NotificationWorker(private val context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
 
+    /**
+     * Runs when WorkManager initiates it
+     */
     override fun doWork(): Result {
 
-        // Init
+        // Init data
         val app = applicationContext as MainApplication
         val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         val timeSinceLastClose = Calendar.getInstance().timeInMillis - app.lastClosed.timeInMillis
@@ -76,12 +100,12 @@ class UploadWorker(private val context: Context, workerParams: WorkerParameters)
         //  - minimum 24 hours since the user last used the app
         if (!app.inForeground && currentHour in 16..20 && timeSinceLastClose > 1000*60*60*24) {
 
-            // Send notification
+            // Setup notification
             val builder = NotificationCompat.Builder(context, "owly_channel_1")
-                .setSmallIcon(R.drawable.owly)
-                .setContentTitle("Message from Owly!")
-                .setContentText(Owly("").remind())
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setSmallIcon(R.drawable.owly) // Owly icon
+                .setContentTitle("Message from Owly!") // Title
+                .setContentText(Owly("").remind()) // Message
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT) // Priority
 
             val notificationManager = NotificationManagerCompat.from(context)
             // Double-check that the user still allows push notifications
@@ -90,11 +114,11 @@ class UploadWorker(private val context: Context, workerParams: WorkerParameters)
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
-                notificationManager.notify(1001, builder.build())
+                notificationManager.notify(1001, builder.build()) // Send notification
             }
 
             return Result.success()
         }
-        return Result.retry()
+        return Result.retry() // Retry if checks failed
     }
 }
