@@ -1,5 +1,6 @@
 package com.example.owlycards
 
+import android.app.Application
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,7 +15,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.owlycards.managers.NotificationMgr
 import com.example.owlycards.ui.theme.OwlyCardsTheme
+import java.util.Calendar
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -29,6 +32,23 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        (application as MyApplication).inForeground = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val app = application as MyApplication
+        app.inForeground = false
+        app.lastClosed = Calendar.getInstance()
+    }
+}
+
+class MyApplication : Application() {
+    var inForeground = false
+    var lastClosed: Calendar = Calendar.getInstance()
 }
 
 
@@ -39,7 +59,13 @@ class MainActivity : ComponentActivity() {
 fun OwlyApp(initViewModel: SharedViewModel) {
     val viewModel = remember { mutableStateOf(initViewModel) }
 
-    val navController = rememberNavController() // Nav controller
+    val context = LocalContext.current
+
+    // Notifications
+    NotificationMgr(context).createReminders()
+
+    // Nav controller
+    val navController = rememberNavController()
 
     // Determine start destination
     val startDest = if (viewModel.value.config.setupComplete) "cards_sets" else "welcome"

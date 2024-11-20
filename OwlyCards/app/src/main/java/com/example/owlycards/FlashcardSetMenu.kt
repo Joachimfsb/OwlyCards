@@ -383,6 +383,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                 val flashcardSet = viewModel.value.addFlashcardSet(context, "$name.owly")
                                 if (flashcardSet != null) {
                                     flashcardSet.name = name
+                                    navController.navigate("study-set/$name.owly")
                                 } else {
                                     promptErrorDialog = "Could not create flashcard set: invalid or existing name"
                                 }
@@ -399,9 +400,6 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                     TextButton(
                         onClick = {
                             promptCreateFlashcardSet = false
-                            navController.navigate("study-set/$name")
-                        } else {
-                            nameNotFilled = true
                         }
                     ) {
                         Text("Cancel")
