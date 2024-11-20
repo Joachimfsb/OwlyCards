@@ -1,9 +1,14 @@
 package com.example.owlycards.data
 
+/**
+ * The Flashcard class stores and manages flashcards
+ */
 class Flashcard(
     question: String,
     answer: String
 ) {
+    // Data
+    // Note that getting these variables yields their raw form, not a displayable version
     var question = question
         set(value) { field = sanitizeStrings(value) } // Settings the question automatically sanitizes it
     var answer = answer
@@ -13,6 +18,13 @@ class Flashcard(
     fun getDisplayableQuestion(): String { return unsanitizeStrings(question) }
     fun getDisplayableAnswer(): String { return unsanitizeStrings(answer) }
 
+    // Initialization
+    init {
+        this.question = question
+        this.answer = answer
+    }
+
+    ////// PRIVATE //////
 
     // HELPERS
     // Sanitizes strings before storage
@@ -24,9 +36,5 @@ class Flashcard(
         return s.replace("<semicolon>", ";").replace("<newline>", "\n")
     }
 
-    // Initialization
-    init {
-        this.question = question
-        this.answer = answer
-    }
+
 }

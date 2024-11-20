@@ -1,5 +1,8 @@
 package com.example.owlycards.data
 
+/**
+ * The Owly class is a class that is meant to provide various personal messages to the user
+ */
 class Owly(name: String) {
 
     fun greet(): String { return greetings.shuffled().first() }
