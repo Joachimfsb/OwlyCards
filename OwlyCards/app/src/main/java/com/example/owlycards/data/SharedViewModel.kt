@@ -1,10 +1,7 @@
-package com.example.owlycards
+package com.example.owlycards.data
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.example.owlycards.data.Owly
-import com.example.owlycards.data.Config
-import com.example.owlycards.data.FlashcardSet
 import java.io.File
 
 class SharedViewModel(context: Context) : ViewModel() {

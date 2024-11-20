@@ -1,4 +1,4 @@
-package com.example.owlycards
+package com.example.owlycards.views
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*

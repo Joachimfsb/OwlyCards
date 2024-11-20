@@ -1,4 +1,4 @@
-package com.example.owlycards
+package com.example.owlycards.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -26,6 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.owlycards.R
+import com.example.owlycards.data.SharedViewModel
 
 
 @Composable
