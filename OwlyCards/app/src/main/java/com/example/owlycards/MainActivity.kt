@@ -27,12 +27,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        (application as MyApplication).inForeground = true
+        (application as MainApplication).inForeground = true
     }
 
     override fun onStop() {
         super.onStop()
-        val app = application as MyApplication
+        val app = application as MainApplication
         app.inForeground = false
         app.lastClosed = Calendar.getInstance()
     }

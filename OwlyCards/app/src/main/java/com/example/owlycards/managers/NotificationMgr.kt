@@ -15,7 +15,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.example.owlycards.MyApplication
+import com.example.owlycards.MainApplication
 import com.example.owlycards.R
 import com.example.owlycards.data.Owly
 import java.util.Calendar
@@ -66,7 +66,7 @@ class UploadWorker(private val context: Context, workerParams: WorkerParameters)
     override fun doWork(): Result {
 
         // Init
-        val app = applicationContext as MyApplication
+        val app = applicationContext as MainApplication
         val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         val timeSinceLastClose = Calendar.getInstance().timeInMillis - app.lastClosed.timeInMillis
 
