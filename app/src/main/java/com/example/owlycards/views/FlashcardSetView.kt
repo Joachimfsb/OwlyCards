@@ -58,12 +58,16 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 
-
+/**
+ * Displays a list of all flashcard sets. Acts as the home page.
+ */
 @Composable
 fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavController) {
 
+    // Context
     val context = LocalContext.current
 
+    // Get flashcard sets
     val flashcardSets = viewModel.getFlashcardSets()
 
     // Owly
@@ -85,24 +89,29 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Prep import option
+                ///// PREPARATIONS FOR IMPORT BUTTON /////
+                // Setup launcher for import
                 val importFile = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.GetContent(),
                     onResult = { uri ->
                         uri?.let {
+                            // File is read and we have a uri
+
+                            // Read data from uri
                             val inputStream = context.contentResolver.openInputStream(uri)
                             val reader = BufferedReader(InputStreamReader(inputStream))
                             val rawData = reader.use { it.readText() }
 
-                            // Create new flashcard
+                            // Create new flashcard with temporary name (name will be set once flashcard is imported)
                             var success = false
                             val tempFilename = "temporary"
 
-                            val flashcardSet = viewModel.addFlashcardSet(tempFilename)
-                            if (flashcardSet != null) {
-                                if (flashcardSet.import(rawData)) {
+                            val flashcardSet = viewModel.addFlashcardSet(tempFilename) // Create
+                            if (flashcardSet != null) { // Should always succeed
 
-                                    // Use name of flashcard for filename
+                                if (flashcardSet.import(rawData)) { // Import data (will fail if bad format)
+
+                                    // Use name of flashcard set for filename (not imported filename)
                                     if (viewModel.renameFlashcardSet(
                                             tempFilename,
                                             "${flashcardSet.name}.owly"
@@ -126,7 +135,9 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                     }
                 )
 
+                ///// TOP BAR /////
                 TopBarSmall("Flashcard Sets", false, navController) {
+                    // Action button for import
                     IconButton(onClick = {
                         importFile.launch("application/octet-stream") // Import
                     }) {
@@ -144,6 +155,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(padding).fillMaxSize()
         ) {
+            ////// PAGE CONTENT ///////
             if (flashcardSets.isEmpty()) {
                 // There are no flashcards
 
@@ -176,7 +188,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                                         fontSize = 20.sp,
                                     )
                                     Text(
-                                        // The name of the saved flashcard set
+                                        // The number of flashcards
                                         text = "Number of flashcards: ${flashcardSet.second.getFlashcards().size}",
                                         fontSize = 14.sp,
                                         color = Color.Gray,
@@ -233,6 +245,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                                     }
                                 }
 
+                                //// Dropdown menu ////
                                 Row(
                                     horizontalArrangement = Arrangement.End,
                                     modifier = Modifier.fillMaxWidth(),
@@ -245,15 +258,14 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                                                 context.contentResolver.openOutputStream(uri)
                                                     ?.use { outputStream ->
                                                         OutputStreamWriter(outputStream).use { writer ->
-                                                            writer.write(flashcardSet.second.export())
+                                                            writer.write(flashcardSet.second.export()) // Write to file
                                                         }
                                                     }
                                             }
                                         }
                                     )
 
-
-                                    // Choice between exporting set or deleting it
+                                    // Choice between sharing, exporting or deleting set
                                     DropdownMenuArrow(
                                         options = listOf("Share", "Export", "Delete"),
                                         onOptionSelected = {
@@ -270,7 +282,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                                                                 Intent.EXTRA_STREAM,
                                                                 fileUri
                                                             )
-                                                            type = "application/octet-stream"
+                                                            type = "application/octet-stream" // Binary type
                                                         }
                                                         context.startActivity(
                                                             Intent.createChooser(
@@ -285,14 +297,14 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                                                 // Download
                                                 fileSaveLauncher.launch(flashcardSet.first)
                                             } else if (it == "Delete") {
-                                                promptDeletionOfFlashcardSet = flashcardSet
+                                                promptDeletionOfFlashcardSet = flashcardSet // Open prompt
                                             }
                                         },
                                     )
                                 }
                             }
                             if (index == flashcardSets.size - 1) {
-                                Spacer(Modifier.height(85.dp))
+                                Spacer(Modifier.height(85.dp)) // Add padding to bottom of last
                             }
                         }
                     }
@@ -308,7 +320,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                 .fillMaxHeight()
         ) {
             ExtendedFloatingActionButton(
-                onClick = { // Goes to screen where you can create card sets
+                onClick = { // Shows popup for creating flashcard sets
                     promptCreateFlashcardSet = true
                 },
                 icon = { Icon(Icons.Filled.Edit, "Plus") },
@@ -322,7 +334,9 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
             )
         }
 
+        ////////////// PROMPTS //////////////
 
+        // Delete flashcard
         if (promptDeletionOfFlashcardSet != null) {
             AlertDialog(
                 icon = { Icon(Icons.Filled.Warning, "Warning") },
@@ -336,6 +350,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                 confirmButton = {
                     TextButton(
                         onClick = {
+                            // Remove
                             viewModel.removeFlashcardSet(
                                 promptDeletionOfFlashcardSet!!.first
                             )
@@ -356,6 +371,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                 }
             )
         } else if (promptCreateFlashcardSet) {
+            // Create flashcard set
 
             var name by remember { mutableStateOf("") }
             var nameNotFilled by remember { mutableStateOf(false) }
@@ -364,7 +380,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                 title = { Text("Create Flashcard Set") },
                 text = {
                     TextField(
-                        value = name.replace("\n", ""),
+                        value = name.replace("\n", ""), // No newlines
                         onValueChange = { n ->
                             // Max length
                             if (n.length <= 30) {
@@ -392,12 +408,17 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                     TextButton(
                         onClick = {
                             // Verify
-                            val trimmedName = name.trim()
+                            val trimmedName = name.trim() // Remove whitespace
+
+                            // Check that it's not empty
                             if (trimmedName.isNotEmpty()) {
                                 // Create flashcard
                                 val flashcardSet = viewModel.addFlashcardSet("$trimmedName.owly")
-                                if (flashcardSet != null) {
-                                    flashcardSet.name = trimmedName
+                                if (flashcardSet != null) { // Success?
+
+                                    flashcardSet.name = trimmedName // Set name
+
+                                    // Go to study view
                                     navController.navigate("study-set/$trimmedName.owly")
                                 } else {
                                     promptErrorDialog = "Could not create flashcard set: invalid or existing name"
@@ -422,6 +443,8 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                 }
             )
         } else if (promptErrorDialog != null) {
+            // Generic error dialog
+
             AlertDialog(
                 icon = { Icon(Icons.Filled.Warning, "Warning") },
                 title = { Text("Something went wrong!") },

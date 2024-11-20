@@ -7,8 +7,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.owlycards.data.SharedViewModel
 import com.example.owlycards.views.FlashcardSetMenuView
-import com.example.owlycards.views.MatchSetView
-import com.example.owlycards.views.QuizScreen
+import com.example.owlycards.views.MatchView
+import com.example.owlycards.views.QuizView
 import com.example.owlycards.views.StudySetView
 import com.example.owlycards.views.WelcomeView
 
@@ -56,7 +56,7 @@ fun DefineRoutes(viewModel: SharedViewModel) {
             if (flashcardSet == null) {
                 Text("Something went wrong, this quiz set does not exist!") // No!
             } else {
-                QuizScreen(navController, flashcardSet) // Yes!
+                QuizView(navController, flashcardSet) // Yes!
             }
         }
         // Match game for single flashcard set
@@ -68,7 +68,7 @@ fun DefineRoutes(viewModel: SharedViewModel) {
             if (flashcardSet == null) {
                 Text("Something went wrong, this study set does not exist!") // No!
             } else {
-                MatchSetView(navController, flashcardSet) // Yes!
+                MatchView(navController, flashcardSet) // Yes!
             }
         }
     }

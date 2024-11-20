@@ -33,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -41,10 +40,10 @@ import com.example.owlycards.components.CardFace
 import com.example.owlycards.components.DottedPageIndicator
 import com.example.owlycards.components.FlashCard
 import com.example.owlycards.components.OwlyComponent
-import com.example.owlycards.data.Owly
 import com.example.owlycards.components.TopBarSmall
 import com.example.owlycards.data.Flashcard
 import com.example.owlycards.data.FlashcardSet
+import com.example.owlycards.data.Owly
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 
@@ -56,18 +55,19 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
     val flashcards = flashcardSet.getFlashcards()
 
     // Owly
-    var owlyMessage by remember { mutableStateOf(owly.greet()) }
+    var owlyMessage by remember { mutableStateOf(owly.greet()) } // First message from owly is a greeting
     var seconds by remember { mutableIntStateOf(0) }
 
+    // Counter to help display multiple messages from Owly
     LaunchedEffect(Unit) {
         while(true) {
             delay(1.seconds)
             seconds++
 
-            // Every minute
+            // Every 30 sec
             if (seconds > 30) {
                 seconds = 0
-                owlyMessage = owly.motivate()
+                owlyMessage = owly.motivate() // Subsequent messages from Owly are motivations
             }
         }
     }
@@ -85,8 +85,11 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
     // Content
     Scaffold(
         topBar = {
+            /// Top bar with back button
             TopBarSmall(flashcardSet.name, true, navController) {
-                // Buttons
+                // Action buttons
+
+                // Pencil if not in edit mode, and x if in edit mode
                 if (!editMode) {
                     IconButton(onClick = { editMode = true }) {
                         Icon(Icons.Filled.Edit, "Edit flashcards")
@@ -106,7 +109,10 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                 .fillMaxHeight()
                 .padding(padding)
         ) {
-            val pagerStatus = rememberPagerState { flashcards.size + 1 }
+            // Main content
+
+            // Horizontal pager that shows flippable cards
+            val pagerStatus = rememberPagerState { flashcards.size + 1 } // Pages = flashcards + add new flashcard button
 
             HorizontalPager (
                 state = pagerStatus,
@@ -115,9 +121,11 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                     .fillMaxWidth()
                     .heightIn(200.dp, 400.dp)
             ) { index ->
+                // Checks if flashcard should be shown or the create flashcard button
                 if (index < flashcards.size) {
                     // Show flashcards
-                    val flashcard = flashcards[index]
+
+                    val flashcard = flashcards[index] // Current flashcard
 
                     Box(modifier = Modifier.padding(40.dp)) {
                         // Remember state
@@ -131,12 +139,15 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                                 state = it.next // Flip
                             },
                             back = {
+                                // Back content of card
                                 Text(flashcard.getDisplayableAnswer(), fontSize = 18.sp)
                             },
                             front = {
+                                // Front content of card
                                 Text(flashcard.getDisplayableQuestion(), fontSize = 18.sp)
                             },
                             actions = {
+                                // Add delete button if in edit mode
                                 if (editMode) {
                                     IconButton(onClick = {
                                         flashcardSet.removeFlashcard(index)
@@ -155,6 +166,7 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                         modifier = Modifier.padding(40.dp).fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
+                        // Display as a card with + in the middle
                         FlashCard(
                             showHeader = false,
                             onClick = {
@@ -172,25 +184,28 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                 }
             }
 
-
             Column(
                 modifier = Modifier
                     .height(180.dp)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Pager dot indicator
+                // Dotted page indicator indicates what page you are on with dots
                 DottedPageIndicator(pagerStatus.pageCount, pagerStatus.currentPage)
 
                 Spacer(modifier.height(30.dp))
 
-                OwlyComponent(owlyMessage)
+                OwlyComponent(owlyMessage) // Owly
             }
         }
     }
 
+    //////////// PROMPTS ////////////
+
+    // Create flashcard
     if (promptCreateFlashcard) {
 
+        // States
         var question by remember { mutableStateOf("") }
         var answer by remember { mutableStateOf("") }
         var qNotFilled by remember { mutableStateOf(false) }
@@ -236,6 +251,7 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                         qNotFilled = question.isEmpty()
                         aNotFilled = answer.isEmpty()
 
+                        // Both must have content
                         if (!qNotFilled && !aNotFilled) {
                             // Create
                             flashcardSet.addFlashcard(Flashcard(question, answer))

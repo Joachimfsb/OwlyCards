@@ -1,7 +1,6 @@
 package com.example.owlycards.views
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,24 +30,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.owlycards.R
 import com.example.owlycards.components.DottedPageIndicator
 import com.example.owlycards.components.OwlyComponent
 import com.example.owlycards.components.TopBarSmall
 import com.example.owlycards.data.FlashcardSet
 import kotlinx.coroutines.launch
 
+/**
+ * Matching game for flashcards.
+ */
 @Composable
-fun MatchSetView(navController: NavController, flashcardSet: FlashcardSet) {
+fun MatchView(navController: NavController, flashcardSet: FlashcardSet) {
+    // Get flashcards
     val flashcards = flashcardSet.getFlashcards()
 
-    var shuffledQuestions = remember(flashcards) { // Randomize the order of the answers in a new list
+    val shuffledQuestions = remember(flashcards) { // Randomize the order of the answers in a new list
         flashcards.shuffled().toMutableList() // All questions shuffled in a mutable list
     }
 

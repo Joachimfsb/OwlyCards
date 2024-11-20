@@ -28,10 +28,14 @@ import androidx.navigation.NavController
 import com.example.owlycards.R
 import com.example.owlycards.data.SharedViewModel
 
-
+/**
+ * Welcome / Setup view. This page is shown on first visit of the app. It allows the user to
+ * provide their name.
+ */
 @Composable
 fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifier: Modifier = Modifier) {
 
+    // States
     var name by remember { mutableStateOf("") }
     var nameNotFilled by remember { mutableStateOf(false)}
     var step by remember { mutableIntStateOf(1)}
@@ -45,6 +49,7 @@ fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifi
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(20.dp)
         ) {
+            // Image of owly and title
             Spacer(modifier = Modifier.height(80.dp))
             Image(
                 painter = painterResource(id = R.drawable.owly), //image of Owly
@@ -57,9 +62,11 @@ fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifi
                 fontSize = 28.sp, //text size
             )
 
-            // Determine step
+            // Two steps
             if (step == 1) {
+                // Step 1
                 Spacer(modifier = Modifier.height(20.dp))
+                // Owly message
                 Text(
                     text = "I am thrilled to finally meet you \uD83D\uDE04",
                     fontSize = 18.sp, //text size
@@ -78,6 +85,7 @@ fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifi
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(30.dp))
+                // Name input field
                 TextField(
                     value = name,
                     onValueChange = { n ->
@@ -96,6 +104,7 @@ fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifi
                     }
                 )
 
+                // Continue button
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
                     val strippedName = name.trim()
@@ -113,6 +122,9 @@ fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifi
                 }
 
             } else if (step == 2) {
+                // Step 2
+
+                // Message from Owly
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     text = "Excellent, $name! You are now ready to use the app. Have fun \uD83D\uDE80",
@@ -121,6 +133,7 @@ fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifi
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Begin button (takes you to list of flashcard sets (home)
                 Button(onClick = {
                     viewModel.config.name = name.trim()
                     viewModel.config.setupComplete = true

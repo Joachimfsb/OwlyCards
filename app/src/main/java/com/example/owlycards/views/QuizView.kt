@@ -14,13 +14,12 @@ import androidx.navigation.NavController
 import com.example.owlycards.components.TopBarSmall
 import com.example.owlycards.data.FlashcardSet
 
-@Composable
-fun QuizScreen(navController: NavController, flashcardSet: FlashcardSet) {
-    QuizScreenPage(navController, flashcardSet)
-}
 
+/**
+ * Quiz game for flashcards.
+ */
 @Composable
-fun QuizScreenPage(navController: NavController, flashcardSet: FlashcardSet) {
+fun QuizView(navController: NavController, flashcardSet: FlashcardSet) {
     val cardSet = remember { flashcardSet.getFlashcards().shuffled() } // shuffle flashcards
 
     // if there are no cards in a set, give message and back button
