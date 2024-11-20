@@ -204,7 +204,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                                             border = BorderStroke(
                                                 2.dp,
                                                 ButtonDefaults.buttonColors().containerColor
-                                            )
+                                            ),
                                         ) {
                                             Text(
                                                 "MATCH",

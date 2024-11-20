@@ -27,7 +27,7 @@ class Owly(name: String) {
         "Take it one step at a time. You'll get there $name!",
         "Curiosity is your best friend! Follow it! \uD83D\uDDFA\uFE0F",
         "Every time you learn, you're building your future! \uD83E\uDDF1",
-        "Hoo-hoo! Believe in yourself, you can learn anything $name!",
+        "Hoo-hoo! Believe in yourself $name, you can learn anything !",
         "Nothing can stop you $name!",
         "Wowzers! You are impressing me $name! \uD83D\uDE0D",
         "You're a star $name! \uD83C\uDF1F"
