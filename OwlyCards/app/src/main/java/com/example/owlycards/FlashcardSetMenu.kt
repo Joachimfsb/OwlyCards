@@ -350,7 +350,7 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                 title = { Text("Create Flashcard Set") },
                 text = {
                     TextField(
-                        value = name,
+                        value = name.replace("\n", ""),
                         onValueChange = { n ->
                             // Max length
                             if (n.length <= 30) {
@@ -378,12 +378,13 @@ fun FlashcardSetMenuView(viewModel: MutableState<SharedViewModel>, navController
                     TextButton(
                         onClick = {
                             // Verify
-                            if (name.isNotEmpty()) {
+                            val strippedName = name.filter { !it.isWhitespace() }
+                            if (strippedName.isNotEmpty()) {
                                 // Create flashcard
-                                val flashcardSet = viewModel.value.addFlashcardSet(context, "$name.owly")
+                                val flashcardSet = viewModel.value.addFlashcardSet(context, "$strippedName.owly")
                                 if (flashcardSet != null) {
-                                    flashcardSet.name = name
-                                    navController.navigate("study-set/$name.owly")
+                                    flashcardSet.name = strippedName
+                                    navController.navigate("study-set/$strippedName.owly")
                                 } else {
                                     promptErrorDialog = "Could not create flashcard set: invalid or existing name"
                                 }
