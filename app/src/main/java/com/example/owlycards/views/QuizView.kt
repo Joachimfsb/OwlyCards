@@ -140,7 +140,7 @@ fun QuizView(navController: NavController, flashcardSet: FlashcardSet) {
                     // submit input
                     Button(
                         onClick = {
-                            if (answer.equals(cardSet[currentQuestionIndex].answer, ignoreCase = true)) {
+                            if (answer.equals(cardSet[currentQuestionIndex].getDisplayableAnswer(), ignoreCase = true)) {
                                 feedback = "Correct!"
                                 if (currentQuestionIndex + 1 < cardSet.size) {
                                     currentQuestionIndex++
