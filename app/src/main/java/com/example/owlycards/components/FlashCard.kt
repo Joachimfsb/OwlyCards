@@ -27,19 +27,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // The following code is inspired by a solution by this post https://stackoverflow.com/questions/68044576/how-to-make-flipcard-animation-in-jetpack-compose
+
+/**
+ * Allows you to determine the current face of a card.
+ */
 enum class CardFace(val angle: Float) {
-    Front(0f) {
+    Front(0f) { // 0 degrees
         override val next: CardFace
-            get() = Back
+            get() = Back // Opposite
     },
-    Back(180f) {
+    Back(180f) { // 180 degrees
         override val next: CardFace
-            get() = Front
+            get() = Front // Opposite
     };
 
-    abstract val next: CardFace
+    abstract val next: CardFace // Use to flip
 }
 
+/**
+ * FlipCard component. Can be used with or without flip functionality.
+ * Displays a 2-sided card that can be flipped (with animation).
+ */
 @Composable
 fun FlashCard(
     cardNumber: Int = 0,
@@ -50,6 +58,7 @@ fun FlashCard(
     front: @Composable () -> Unit = {},
     actions: @Composable () -> Unit = {}
 ) {
+    // Animate rotation
     val rotation = animateFloatAsState(
         targetValue = cardFace.angle,
         animationSpec = tween(
@@ -57,6 +66,7 @@ fun FlashCard(
             easing = FastOutSlowInEasing
         ), label = ""
     )
+    // Card
     Card(
         onClick = { onClick(cardFace) },
         shape = RoundedCornerShape(25.dp),
@@ -64,13 +74,16 @@ fun FlashCard(
         colors = CardDefaults.cardColors(containerColor = Color(245, 245, 245)),
         modifier = Modifier.graphicsLayer { rotationY = rotation.value; cameraDistance = 12f * density }
     ) {
+        // Add padding to bottom to center text better (if header is shown)
         val bottomPadding = if (showHeader) 30.dp else 0.dp
 
+        // Show front of card if rotation is less than or equal to 90 degrees
         if (rotation.value <= 90f) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (showHeader) {
+                    // Header text and actions
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,6 +99,7 @@ fun FlashCard(
                         actions()
                     }
                 }
+                // Front content
                 Box(
                     Modifier.fillMaxSize().padding(18.dp).padding(bottom = bottomPadding),
                     contentAlignment = Alignment.Center
@@ -93,11 +107,12 @@ fun FlashCard(
                     front()
                 }
             }
-        } else {
+        } else { // Otherwise show back of card
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (showHeader) {
+                    // Header text
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
@@ -114,6 +129,7 @@ fun FlashCard(
                         )
                     }
                 }
+                // Back content
                 Box(
                     Modifier
                         .fillMaxSize()

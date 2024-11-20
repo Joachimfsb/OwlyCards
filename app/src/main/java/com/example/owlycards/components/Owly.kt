@@ -14,6 +14,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.owlycards.R
 
+/**
+ * Simple Owly component that shows owly saying a message.
+ */
 @Composable
 fun OwlyComponent(message: String) {
     Column(
@@ -26,6 +29,6 @@ fun OwlyComponent(message: String) {
             contentDescription = "Owly", //description of picture
             contentScale = ContentScale.Fit,
         )
-        Text(message, textAlign = TextAlign.Center)
+        Text(message, textAlign = TextAlign.Center) // Message
     }
 }

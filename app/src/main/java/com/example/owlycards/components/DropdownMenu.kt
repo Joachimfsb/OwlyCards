@@ -17,11 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Dropdown menu with arrow (no text) in text field
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownMenuArrow(onOptionSelected: (String) -> Unit, options: List<String>) {
-    if (options.isEmpty()) return
+    if (options.isEmpty()) return // Don't show if no options
 
+    // States
     var isExpanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf(options[0]) } // Default display value
 
@@ -29,6 +33,7 @@ fun DropdownMenuArrow(onOptionSelected: (String) -> Unit, options: List<String>)
         expanded = isExpanded,
         onExpandedChange = { isExpanded = !isExpanded },
     ) {
+        // Dropdown menu "button"
         OutlinedTextField(
             value = "",
             onValueChange = { },
@@ -40,6 +45,7 @@ fun DropdownMenuArrow(onOptionSelected: (String) -> Unit, options: List<String>)
                 focusedBorderColor = Color.Transparent
             )
         )
+        // Dropdown menu with options
         androidx.compose.material3.DropdownMenu(
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false },

@@ -19,22 +19,32 @@ import androidx.compose.ui.unit.dp
 
 // This implementation is inspired by the answer from https://stackoverflow.com/questions/73416996/jetpack-compose-animated-pager-dots-indicator
 
+/**
+ * Dotted page indicator to use with i.e. Pager.
+ */
 @Composable
 fun DottedPageIndicator(numberOfPages: Int, selectedPage: Int) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(15.dp)
     ) {
+        // Loop through each page
         for (i in 0 until numberOfPages) {
+            // Check if selected
             val selected = i == selectedPage
+
+            // Determine if it should be wide or not
             val width: Dp by animateDpAsState(
                 targetValue = if (selected) { 26.dp } else { 8.dp },
                 animationSpec = tween(
                     durationMillis = 300,
                 ), label = ""
             )
+
+            // Determine color
             val color = if (selected) { Color.Gray } else { Color.LightGray }
 
+            // Show it
             Canvas(Modifier.size(width = width, height = 8.dp)) {
                 drawRoundRect(
                     color = color,

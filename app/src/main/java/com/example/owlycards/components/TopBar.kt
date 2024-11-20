@@ -13,7 +13,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
-
+/**
+ * TopBarSmall component shows the top bar with a title and optionally a back button and other action buttons.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarSmall(title: String, showBackBtn: Boolean, navController: NavController, actions: @Composable (RowScope.() -> Unit) = {}) {
@@ -23,17 +25,18 @@ fun TopBarSmall(title: String, showBackBtn: Boolean, navController: NavControlle
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
-        title = { Text(title) },
+        title = { Text(title) }, // Title
         navigationIcon = {
+            // Back button
             if (showBackBtn) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Localized description"
+                        contentDescription = "Go to previous page"
                     )
                 }
             }
         },
-        actions = actions
+        actions = actions // Optional action buttons
     )
 }
