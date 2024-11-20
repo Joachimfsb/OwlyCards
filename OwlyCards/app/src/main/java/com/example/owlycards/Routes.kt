@@ -2,7 +2,6 @@ package com.example.owlycards
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,13 +13,13 @@ import com.example.owlycards.views.StudySetView
 import com.example.owlycards.views.WelcomeView
 
 @Composable
-fun DefineRoutes(viewModel: MutableState<SharedViewModel>) {
+fun DefineRoutes(viewModel: SharedViewModel) {
 
     // Nav controller
     val navController = rememberNavController()
 
     // Determine start destination
-    val startDest = if (viewModel.value.config.setupComplete) "cards_sets" else "welcome"
+    val startDest = if (viewModel.config.setupComplete) "cards_sets" else "welcome"
 
     // Define routes
     NavHost(navController, startDest) { //program starts at
@@ -34,18 +33,18 @@ fun DefineRoutes(viewModel: MutableState<SharedViewModel>) {
         composable("study-set/{flashcardSetFilename}") { backStackEntry ->
             // Parse args
             val filename = backStackEntry.arguments?.getString("flashcardSetFilename") ?: ""
-            val flashcardSet = viewModel.value.getFlashcardSet(filename)
+            val flashcardSet = viewModel.getFlashcardSet(filename)
             // Does flashcard set exist?
             if (flashcardSet == null) {
                 Text("Something went wrong, this study set does not exist!") // No!
             } else {
-                StudySetView(viewModel.value.owly, flashcardSet, navController) // Yes!
+                StudySetView(viewModel.owly, flashcardSet, navController) // Yes!
             }
         }
         composable("quiz/{flashcardSetFilename}") { backStackEntry ->
             // Parse args
             val filename = backStackEntry.arguments?.getString("flashcardSetFilename") ?: ""
-            val flashcardSet = viewModel.value.getFlashcardSet(filename)
+            val flashcardSet = viewModel.getFlashcardSet(filename)
             // Does flashcard set exist?
             if (flashcardSet == null) {
                 Text("Something went wrong, this quiz set does not exist!") // No!
@@ -56,7 +55,7 @@ fun DefineRoutes(viewModel: MutableState<SharedViewModel>) {
         composable("match-set/{flashcardSetFilename}") { backStackEntry ->
             // Parse args
             val filename = backStackEntry.arguments?.getString("flashcardSetFilename") ?: ""
-            val flashcardSet = viewModel.value.getFlashcardSet(filename)
+            val flashcardSet = viewModel.getFlashcardSet(filename)
             // Does flashcard set exist?
             if (flashcardSet == null) {
                 Text("Something went wrong, this study set does not exist!") // No!

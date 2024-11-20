@@ -208,11 +208,7 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                         isError = qNotFilled,
                         supportingText = {
                             if (qNotFilled) {
-                                Text(
-                                    "Please supply a question",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Text("Please supply a question")
                             }
                         }
                     )
@@ -224,11 +220,7 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                         isError = aNotFilled,
                         supportingText = {
                             if (aNotFilled) {
-                                Text(
-                                    "Please supply the answer",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Text("Please supply an answer")
                             }
                         }
                     )

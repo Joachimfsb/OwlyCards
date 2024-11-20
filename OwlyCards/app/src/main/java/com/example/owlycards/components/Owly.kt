@@ -26,6 +26,6 @@ fun OwlyComponent(message: String) {
             contentDescription = "Owly", //description of picture
             contentScale = ContentScale.Fit,
         )
-        Text("Owly: $message", textAlign = TextAlign.Center)
+        Text(message, textAlign = TextAlign.Center)
     }
 }
