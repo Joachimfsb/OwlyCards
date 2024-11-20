@@ -12,28 +12,34 @@ import com.example.owlycards.views.QuizScreen
 import com.example.owlycards.views.StudySetView
 import com.example.owlycards.views.WelcomeView
 
+/**
+ * Defines view routes and starts the first view
+  */
 @Composable
 fun DefineRoutes(viewModel: SharedViewModel) {
 
     // Nav controller
     val navController = rememberNavController()
 
-    // Determine start destination
+    // Determine start destination:
+    // If setup is completed show flashcard-sets, else who the welcome/setup screen
     val startDest = if (viewModel.config.setupComplete) "cards_sets" else "welcome"
 
     // Define routes
-    NavHost(navController, startDest) { //program starts at
-        //startMenu screen
-        composable("welcome") { //start menu screen
+    NavHost(navController, startDest) {
+        // Welcome / Setup
+        composable("welcome") {
             WelcomeView(viewModel, navController)
         }
-        composable("cards_sets") { //card sets screen. create and delete card sets
+        // List of flashcard sets
+        composable("cards_sets") {
             FlashcardSetMenuView(viewModel, navController)
         }
+        // Study a single flashcard set
         composable("study-set/{flashcardSetFilename}") { backStackEntry ->
             // Parse args
             val filename = backStackEntry.arguments?.getString("flashcardSetFilename") ?: ""
-            val flashcardSet = viewModel.getFlashcardSet(filename)
+            val flashcardSet = viewModel.getFlashcardSet(filename) // Get flashcard set by filename
             // Does flashcard set exist?
             if (flashcardSet == null) {
                 Text("Something went wrong, this study set does not exist!") // No!
@@ -41,10 +47,11 @@ fun DefineRoutes(viewModel: SharedViewModel) {
                 StudySetView(viewModel.owly, flashcardSet, navController) // Yes!
             }
         }
+        // Quiz game for single flashcard set
         composable("quiz/{flashcardSetFilename}") { backStackEntry ->
             // Parse args
             val filename = backStackEntry.arguments?.getString("flashcardSetFilename") ?: ""
-            val flashcardSet = viewModel.getFlashcardSet(filename)
+            val flashcardSet = viewModel.getFlashcardSet(filename) // Get flashcard set by filename
             // Does flashcard set exist?
             if (flashcardSet == null) {
                 Text("Something went wrong, this quiz set does not exist!") // No!
@@ -52,10 +59,11 @@ fun DefineRoutes(viewModel: SharedViewModel) {
                 QuizScreen(navController, flashcardSet) // Yes!
             }
         }
+        // Match game for single flashcard set
         composable("match-set/{flashcardSetFilename}") { backStackEntry ->
             // Parse args
             val filename = backStackEntry.arguments?.getString("flashcardSetFilename") ?: ""
-            val flashcardSet = viewModel.getFlashcardSet(filename)
+            val flashcardSet = viewModel.getFlashcardSet(filename) // Get flashcard set by filename
             // Does flashcard set exist?
             if (flashcardSet == null) {
                 Text("Something went wrong, this study set does not exist!") // No!

@@ -11,7 +11,9 @@ import com.example.owlycards.data.SharedViewModel
 import com.example.owlycards.ui.theme.OwlyCardsTheme
 import java.util.Calendar
 
-// Main activity of the app
+/*
+ *  Main activity of the app
+ */
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {

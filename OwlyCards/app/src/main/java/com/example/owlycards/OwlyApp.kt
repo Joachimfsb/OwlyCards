@@ -12,10 +12,9 @@ import com.example.owlycards.managers.NotificationMgr
 @Composable
 fun OwlyApp(viewModel: SharedViewModel) {
 
-    val context = LocalContext.current
+    // Create reminders (even if they already exist)
+    NotificationMgr(LocalContext.current).createReminders()
 
-    // Notifications
-    NotificationMgr(context).createReminders()
-
+    // Define routes and start view
     DefineRoutes(viewModel)
 }
