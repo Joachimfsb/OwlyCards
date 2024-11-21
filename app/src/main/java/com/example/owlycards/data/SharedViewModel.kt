@@ -12,7 +12,7 @@ class SharedViewModel(private val context: Context) {
     // Data
     val config = Config(context)
     private val _flashcardSets = mutableMapOf<String, FlashcardSet>() // Only accessible through methods
-    val owly = Owly(config.name)
+    var owly = Owly(config.name)
 
     // Flashcard manipulators
 
