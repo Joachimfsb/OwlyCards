@@ -303,9 +303,9 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                                     )
                                 }
                             }
-                            if (index == flashcardSets.size - 1) {
-                                Spacer(Modifier.height(85.dp)) // Add padding to bottom of last
-                            }
+                        }
+                        if (index == flashcardSets.size - 1) {
+                            Spacer(Modifier.height(85.dp)) // Add padding to bottom of last
                         }
                     }
                 }
