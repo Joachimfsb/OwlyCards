@@ -45,15 +45,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.owlycards.data.SharedViewModel
 import com.example.owlycards.components.DropdownMenuArrow
 import com.example.owlycards.components.OwlyComponent
 import com.example.owlycards.components.TopBarSmall
 import com.example.owlycards.data.FlashcardSet
+import com.example.owlycards.data.SharedViewModel
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
@@ -392,11 +391,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                         isError = nameNotFilled,
                         supportingText = {
                             if (nameNotFilled) {
-                                Text(
-                                    "Please supply a name for the Flashcard Set",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Text("Please supply a name for the Flashcard Set")
                             }
                         }
                     )
