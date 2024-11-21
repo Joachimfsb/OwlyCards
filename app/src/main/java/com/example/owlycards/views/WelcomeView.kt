@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.owlycards.R
+import com.example.owlycards.data.Owly
 import com.example.owlycards.data.SharedViewModel
 
 /**
@@ -107,13 +108,13 @@ fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifi
                 // Continue button
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
-                    val strippedName = name.trim()
+                    val trimmedName = name.trim()
                     // Verify that name is filled out
-                    if (strippedName.isEmpty()) {
+                    if (trimmedName.isEmpty()) {
                         // Show error
                         nameNotFilled = true
                     } else {
-                        name = strippedName
+                        name = trimmedName
                         // Go to step 2
                         step = 2
                     }
@@ -135,8 +136,10 @@ fun WelcomeView(viewModel: SharedViewModel, navController: NavController, modifi
 
                 // Begin button (takes you to list of flashcard sets (home)
                 Button(onClick = {
-                    viewModel.config.name = name.trim()
+                    viewModel.config.name = name
                     viewModel.config.setupComplete = true
+                    // When updating name, owly needs to be regenerated
+                    viewModel.owly = Owly(name)
                     navController.navigate("cards_sets")
                 }) {
                     Text("Begin")
