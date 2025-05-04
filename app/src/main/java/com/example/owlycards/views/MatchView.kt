@@ -132,6 +132,7 @@ fun MatchView(navController: NavController, flashcardSet: FlashcardSet) {
                                 Text( // Display the question of the current Question-card
                                     fontSize = 20.sp,
                                     textAlign = TextAlign.Center,
+                                    color = Color.Black,
                                     text = flashcards[index].getDisplayableQuestion()
                                 )
                             }
@@ -178,6 +179,7 @@ fun MatchView(navController: NavController, flashcardSet: FlashcardSet) {
                                 Text( // Display the question of the current Question-card
                                     fontSize = 20.sp,
                                     textAlign = TextAlign.Center,
+                                    color = Color.Black,
                                     text = shuffledQuestions[index].getDisplayableAnswer()
                                 )
                             }

@@ -184,6 +184,7 @@ fun FlashcardSetMenuView(viewModel: SharedViewModel, navController: NavControlle
                                     Text(
                                         // The name of the saved flashcard set
                                         text = flashcardSet.second.name,
+                                        color = Color.Black,
                                         fontSize = 20.sp,
                                     )
                                     Text(

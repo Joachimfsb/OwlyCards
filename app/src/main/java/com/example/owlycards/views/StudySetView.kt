@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -140,11 +141,11 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                             },
                             back = {
                                 // Back content of card
-                                Text(flashcard.getDisplayableAnswer(), fontSize = 18.sp)
+                                Text(flashcard.getDisplayableAnswer(), color = Color.Black, fontSize = 18.sp)
                             },
                             front = {
                                 // Front content of card
-                                Text(flashcard.getDisplayableQuestion(), fontSize = 18.sp)
+                                Text(flashcard.getDisplayableQuestion(), color = Color.Black, fontSize = 18.sp)
                             },
                             actions = {
                                 // Add delete button if in edit mode
@@ -212,18 +213,18 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
         var aNotFilled by remember { mutableStateOf(false) }
 
         AlertDialog(
-            title = { Text("Create Flashcard") },
+            title = { Text("Create Flashcard", color = Color.Black,) },
             text = {
                 Column {
                     // Question
                     TextField(
                         value = question,
                         onValueChange = { q -> question = q },
-                        label = { Text("Question") },
+                        label = { Text("Question", color = Color.Black,) },
                         isError = qNotFilled,
                         supportingText = {
                             if (qNotFilled) {
-                                Text("Please supply a question")
+                                Text("Please supply a question", color = Color.Black,)
                             }
                         }
                     )
@@ -231,11 +232,11 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                     TextField(
                         value = answer,
                         onValueChange = { a -> answer = a },
-                        label = { Text("Answer") },
+                        label = { Text("Answer", color = Color.Black,) },
                         isError = aNotFilled,
                         supportingText = {
                             if (aNotFilled) {
-                                Text("Please supply an answer")
+                                Text("Please supply an answer", color = Color.Black,)
                             }
                         }
                     )
@@ -259,7 +260,7 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                         }
                     }
                 ) {
-                    Text("Create")
+                    Text("Create", color = Color.Black,)
                 }
             },
             dismissButton = {
@@ -268,7 +269,7 @@ fun StudySetView(owly: Owly, flashcardSet: FlashcardSet, navController: NavContr
                         promptCreateFlashcard = false
                     }
                 ) {
-                    Text("Cancel")
+                    Text("Cancel", color = Color.Black,)
                 }
             }
         )
