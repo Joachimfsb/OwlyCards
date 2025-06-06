@@ -31,7 +31,7 @@ fun QuizView(navController: NavController, flashcardSet: FlashcardSet) {
         ) {
             Text("Flashcard set is empty!", color = Color.Gray, fontSize = 20.sp)
             Spacer(modifier = Modifier.height(15.dp))
-            Button(onClick = { navController.popBackStack() }) {
+            Button(onClick = { navController.navigate("cards_sets") }) {
                 Text("Back")
             }
         }

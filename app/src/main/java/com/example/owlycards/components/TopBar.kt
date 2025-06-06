@@ -29,7 +29,7 @@ fun TopBarSmall(title: String, showBackBtn: Boolean, navController: NavControlle
         navigationIcon = {
             // Back button
             if (showBackBtn) {
-                IconButton(onClick = { navController.popBackStack() }) {
+                IconButton(onClick = { navController.navigate("cards_sets") }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go to previous page"
